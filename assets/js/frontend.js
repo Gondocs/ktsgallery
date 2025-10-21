@@ -67,11 +67,21 @@
   function next() { currentIndex = (currentIndex + 1) % items.length; setImage(items[currentIndex].href); }
 
   function setImage(src) {
+    if (!img) return;
+    img.classList.remove('is-visible');
+    if (img._onload) {
+      img.removeEventListener('load', img._onload);
+    }
+    img._onload = function(){ img.classList.add('is-visible'); };
+    img.addEventListener('load', img._onload, { once: true });
     img.src = src;
   }
 
   function init() {
     qsa('.kts-gallery').forEach(function(gallery){
+      if (gallery.getAttribute('data-no-rclick') === '1') {
+        gallery.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+      }
       var group = qsa('a.kts-item', gallery);
       group.forEach(function(a, i){
         a.addEventListener('click', function(e){

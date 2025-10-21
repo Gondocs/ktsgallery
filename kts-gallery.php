@@ -12,7 +12,7 @@
 
 if (!defined('ABSPATH')) { exit; }
 
-define('KTS_GALLERY_VERSION', '1.0.0');
+define('KTS_GALLERY_VERSION', '1.1.0');
 define('KTS_GALLERY_SLUG', 'kts-gallery');
 define('KTS_GALLERY_PATH', plugin_dir_path(__FILE__));
 define('KTS_GALLERY_URL', plugin_dir_url(__FILE__));
@@ -77,7 +77,8 @@ class KTS_Gallery_Plugin {
             __('Gallery Settings', 'kts-gallery'),
             [$this, 'render_settings_metabox'],
             'kts_gallery',
-            'side'
+            'normal',
+            'default'
         );
     }
 
@@ -105,28 +106,151 @@ class KTS_Gallery_Plugin {
     }
 
     public function render_settings_metabox($post) {
-        $columns = (int) get_post_meta($post->ID, '_kts_columns', true);
-        $gap     = get_post_meta($post->ID, '_kts_gap', true);
-        $height  = get_post_meta($post->ID, '_kts_height', true);
+        // Core settings
+        $columns  = (int) get_post_meta($post->ID, '_kts_columns', true);
+        $gap      = get_post_meta($post->ID, '_kts_gap', true);
+        $height   = get_post_meta($post->ID, '_kts_height', true);
         $lightbox = get_post_meta($post->ID, '_kts_lightbox', true);
-        if (!$columns) $columns = 3;
+        $layout   = get_post_meta($post->ID, '_kts_layout', true);
+        $autoCols = get_post_meta($post->ID, '_kts_auto_columns', true);
+        $minWidth = get_post_meta($post->ID, '_kts_min_width', true);
+        $lazy     = get_post_meta($post->ID, '_kts_lazy', true);
+    $imgSize  = get_post_meta($post->ID, '_kts_image_size', true);
+    $imgW     = get_post_meta($post->ID, '_kts_img_w', true);
+    $imgH     = get_post_meta($post->ID, '_kts_img_h', true);
+        $crop     = get_post_meta($post->ID, '_kts_crop', true);
+        $rowH     = get_post_meta($post->ID, '_kts_row_height', true);
+        $margins  = get_post_meta($post->ID, '_kts_margins', true);
+
+    if (!$columns) $columns = 3;
         if ($gap === '') $gap = '8px';
         if ($height === '') $height = '200px';
-        $lightbox = $lightbox === '' ? '1' : $lightbox;
+        if ($layout === '') $layout = 'grid';
+        if ($minWidth === '') $minWidth = '220px';
+        if ($rowH === '') $rowH = '220px';
+        if ($margins === '') $margins = '8px';
+    $lightbox = $lightbox === '' ? '1' : $lightbox;
+        $autoCols = $autoCols === '' ? '0' : $autoCols;
+        $lazy     = $lazy === '' ? '1' : $lazy;
+        $crop     = $crop === '' ? '0' : $crop;
+
+    // Appearance / extra options (subset of requested)
+    $align   = get_post_meta($post->ID, '_kts_align', true); if ($align === '') $align = 'center';
+    $widthPc = get_post_meta($post->ID, '_kts_width_pc', true); if ($widthPc === '') $widthPc = '100';
+    $padding = get_post_meta($post->ID, '_kts_padding', true); if ($padding === '') $padding = '0px';
+    $radius  = get_post_meta($post->ID, '_kts_radius', true); if ($radius === '') $radius = '8px';
+    $borderW = get_post_meta($post->ID, '_kts_border_w', true); if ($borderW === '') $borderW = '0px';
+    $borderC = get_post_meta($post->ID, '_kts_border_c', true); if ($borderC === '') $borderC = 'transparent';
+    $shadow  = get_post_meta($post->ID, '_kts_shadow', true); if ($shadow === '') $shadow = '0';
+    $noRC    = get_post_meta($post->ID, '_kts_no_rclick', true); if ($noRC === '') $noRC = '0';
+
+        // Image sizes
+        $sizes = apply_filters('image_size_names_choose', [
+            'thumbnail' => __('Thumbnail'),
+            'medium'    => __('Medium'),
+            'large'     => __('Large'),
+            'full'      => __('Original Image'),
+        ]);
+        if (!$imgSize) $imgSize = 'large';
+
+        // Public shortcode ID
+        $public_id = get_post_meta($post->ID, '_kts_public_id', true);
+        if (!$public_id) $public_id = __('not assigned yet (will be generated on save)', 'kts-gallery');
+
         ?>
-        <p><label for="kts_columns"><?php _e('Columns', 'kts-gallery'); ?></label>
-        <input type="number" min="1" max="12" id="kts_columns" name="kts_columns" value="<?php echo esc_attr($columns); ?>" class="small-text" /></p>
+        <div class="kts-settings-grid">
+            <div class="kts-field">
+                <label for="kts_layout"><?php _e('Layout', 'kts-gallery'); ?></label>
+                <select id="kts_layout" name="kts_layout">
+                    <?php
+                    $opts = [
+                        'automatic' => __('Automatic', 'kts-gallery'),
+                        'mason'     => __('Mason', 'kts-gallery'),
+                        'grid'      => __('Grid', 'kts-gallery'),
+                        'square'    => __('Square', 'kts-gallery'),
+                        'blogroll'  => __('Blogroll', 'kts-gallery'),
+                    ];
+                    foreach ($opts as $val => $label) {
+                        echo '<option value="' . esc_attr($val) . '"' . selected($layout, $val, false) . '>' . esc_html($label) . '</option>';
+                    }
+                    ?>
+                </select>
+            </div>
 
-        <p><label for="kts_gap"><?php _e('Gap (e.g., 8px or 0.5rem)', 'kts-gallery'); ?></label>
-        <input type="text" id="kts_gap" name="kts_gap" value="<?php echo esc_attr($gap); ?>" class="regular-text" /></p>
+            <div class="kts-field">
+                <label for="kts_columns"><?php _e('Columns', 'kts-gallery'); ?></label>
+                <input type="number" min="1" max="12" id="kts_columns" name="kts_columns" value="<?php echo esc_attr($columns); ?>" />
+                <label class="kts-inline"><input type="checkbox" name="kts_auto_columns" value="1" <?php checked($autoCols, '1'); ?>/> <?php _e('Automatic Columns (responsive)', 'kts-gallery'); ?></label>
+                <input type="text" id="kts_min_width" name="kts_min_width" value="<?php echo esc_attr($minWidth); ?>" placeholder="min column width e.g. 220px" />
+            </div>
 
-        <p><label for="kts_height"><?php _e('Image Height (e.g., 200px, 20vh)', 'kts-gallery'); ?></label>
-        <input type="text" id="kts_height" name="kts_height" value="<?php echo esc_attr($height); ?>" class="regular-text" /></p>
+            <div class="kts-field">
+                <label for="kts_gap"><?php _e('Gap', 'kts-gallery'); ?></label>
+                <input type="text" id="kts_gap" name="kts_gap" value="<?php echo esc_attr($gap); ?>" placeholder="e.g., 8px or 0.5rem" />
+            </div>
 
-        <p><label><input type="checkbox" name="kts_lightbox" value="1" <?php checked($lightbox, '1'); ?>/> <?php _e('Enable Lightbox', 'kts-gallery'); ?></label></p>
+            <div class="kts-field">
+                <label for="kts_height"><?php _e('Image Height', 'kts-gallery'); ?></label>
+                <input type="text" id="kts_height" name="kts_height" value="<?php echo esc_attr($height); ?>" placeholder="e.g., 200px, 20vh" />
+            </div>
 
-        <p><strong><?php _e('Shortcode', 'kts-gallery'); ?>:</strong>
-            <code>[kts_gallery id="<?php echo esc_attr($post->ID); ?>"]</code>
+            <div class="kts-field">
+                <label for="kts_image_size"><?php _e('Image Size', 'kts-gallery'); ?></label>
+                <select id="kts_image_size" name="kts_image_size">
+                    <?php foreach ($sizes as $k => $label) echo '<option value="' . esc_attr($k) . '"' . selected($imgSize, $k, false) . '>' . esc_html($label) . '</option>'; ?>
+                </select>
+                <label class="kts-inline"><input type="checkbox" name="kts_crop" value="1" <?php checked($crop, '1'); ?>/> <?php _e('Crop Images?', 'kts-gallery'); ?></label>
+            </div>
+
+            <div class="kts-field">
+                <label><?php _e('Image Dimensions', 'kts-gallery'); ?></label>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <input type="number" min="0" id="kts_img_w" name="kts_img_w" value="<?php echo esc_attr($imgW); ?>" placeholder="width" />
+                    <span style="opacity:.7;">×</span>
+                    <input type="number" min="0" id="kts_img_h" name="kts_img_h" value="<?php echo esc_attr($imgH); ?>" placeholder="height" />
+                    <span style="opacity:.7;">px</span>
+                </div>
+            </div>
+
+            <div class="kts-field">
+                <label><?php _e('Automatic Layout', 'kts-gallery'); ?></label>
+                <input type="text" id="kts_row_height" name="kts_row_height" value="<?php echo esc_attr($rowH); ?>" placeholder="Row Height e.g., 220px" />
+                <input type="text" id="kts_margins" name="kts_margins" value="<?php echo esc_attr($margins); ?>" placeholder="Margins e.g., 8px" />
+            </div>
+
+            <div class="kts-field">
+                <label><input type="checkbox" name="kts_lightbox" value="1" <?php checked($lightbox, '1'); ?>/> <?php _e('Enable Lightbox', 'kts-gallery'); ?></label>
+                <label class="kts-inline"><input type="checkbox" name="kts_lazy" value="1" <?php checked($lazy, '1'); ?>/> <?php _e('Enable Lazy Loading', 'kts-gallery'); ?></label>
+            </div>
+
+            <div class="kts-field">
+                <label><?php _e('Gallery alignment', 'kts-gallery'); ?></label>
+                <select name="kts_align" id="kts_align">
+                    <option value="left" <?php selected($align,'left'); ?>><?php _e('Left','kts-gallery'); ?></option>
+                    <option value="center" <?php selected($align,'center'); ?>><?php _e('Center','kts-gallery'); ?></option>
+                    <option value="right" <?php selected($align,'right'); ?>><?php _e('Right','kts-gallery'); ?></option>
+                </select>
+                <label class="kts-inline" for="kts_width_pc"><?php _e('Gallery width (%)', 'kts-gallery'); ?></label>
+                <input type="number" min="10" max="100" id="kts_width_pc" name="kts_width_pc" value="<?php echo esc_attr($widthPc); ?>" />
+                <label class="kts-inline" for="kts_padding"><?php _e('Gallery padding', 'kts-gallery'); ?></label>
+                <input type="text" id="kts_padding" name="kts_padding" value="<?php echo esc_attr($padding); ?>" placeholder="e.g., 0px or 1rem" />
+            </div>
+
+            <div class="kts-field">
+                <label><?php _e('Image styling', 'kts-gallery'); ?></label>
+                <input type="text" id="kts_radius" name="kts_radius" value="<?php echo esc_attr($radius); ?>" placeholder="Radius e.g., 8px or 5%" />
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <input type="text" id="kts_border_w" name="kts_border_w" value="<?php echo esc_attr($borderW); ?>" placeholder="Border width e.g., 1px" />
+                    <input type="text" id="kts_border_c" name="kts_border_c" value="<?php echo esc_attr($borderC); ?>" placeholder="Border color e.g., #ddd" />
+                </div>
+                <label class="kts-inline"><input type="checkbox" name="kts_shadow" value="1" <?php checked($shadow,'1'); ?>/> <?php _e('Shadow', 'kts-gallery'); ?></label>
+                <label class="kts-inline"><input type="checkbox" name="kts_no_rclick" value="1" <?php checked($noRC,'1'); ?>/> <?php _e('Disable right click', 'kts-gallery'); ?></label>
+            </div>
+        </div>
+
+        <p><strong><?php _e('Shortcodes', 'kts-gallery'); ?>:</strong><br/>
+            <code>[kts_gallery id="<?php echo esc_attr($public_id); ?>"]</code> &nbsp; <?php _e('(public number)', 'kts-gallery'); ?><br/>
+            <code>[kts_gallery id="<?php echo esc_attr($post->post_name); ?>"]</code> &nbsp; <?php _e('(slug)', 'kts-gallery'); ?>
         </p>
         <?php
     }
@@ -144,15 +268,62 @@ class KTS_Gallery_Plugin {
         update_post_meta($post_id, '_kts_images', $ids);
 
         // Settings
-        $columns = isset($_POST['kts_columns']) ? intval($_POST['kts_columns']) : 3;
-        $gap = isset($_POST['kts_gap']) ? sanitize_text_field($_POST['kts_gap']) : '8px';
-        $height = isset($_POST['kts_height']) ? sanitize_text_field($_POST['kts_height']) : '200px';
+        $columns  = isset($_POST['kts_columns']) ? intval($_POST['kts_columns']) : 3;
+        $gap      = isset($_POST['kts_gap']) ? sanitize_text_field($_POST['kts_gap']) : '8px';
+        $height   = isset($_POST['kts_height']) ? sanitize_text_field($_POST['kts_height']) : '200px';
         $lightbox = isset($_POST['kts_lightbox']) ? '1' : '0';
+    $layout   = isset($_POST['kts_layout']) ? sanitize_text_field($_POST['kts_layout']) : 'grid';
+        $autoCols = isset($_POST['kts_auto_columns']) ? '1' : '0';
+        $minWidth = isset($_POST['kts_min_width']) ? sanitize_text_field($_POST['kts_min_width']) : '220px';
+        $lazy     = isset($_POST['kts_lazy']) ? '1' : '0';
+    $imgSize  = isset($_POST['kts_image_size']) ? sanitize_text_field($_POST['kts_image_size']) : 'large';
+    $imgW     = isset($_POST['kts_img_w']) ? intval($_POST['kts_img_w']) : 0;
+    $imgH     = isset($_POST['kts_img_h']) ? intval($_POST['kts_img_h']) : 0;
+        $crop     = isset($_POST['kts_crop']) ? '1' : '0';
+        $rowH     = isset($_POST['kts_row_height']) ? sanitize_text_field($_POST['kts_row_height']) : '220px';
+        $margins  = isset($_POST['kts_margins']) ? sanitize_text_field($_POST['kts_margins']) : '8px';
+    // extras
+    $align   = isset($_POST['kts_align']) ? sanitize_text_field($_POST['kts_align']) : 'center';
+    $widthPc = isset($_POST['kts_width_pc']) ? intval($_POST['kts_width_pc']) : 100;
+    $padding = isset($_POST['kts_padding']) ? sanitize_text_field($_POST['kts_padding']) : '0px';
+    $radius  = isset($_POST['kts_radius']) ? sanitize_text_field($_POST['kts_radius']) : '8px';
+    $borderW = isset($_POST['kts_border_w']) ? sanitize_text_field($_POST['kts_border_w']) : '0px';
+    $borderC = isset($_POST['kts_border_c']) ? sanitize_text_field($_POST['kts_border_c']) : 'transparent';
+    $shadow  = isset($_POST['kts_shadow']) ? '1' : '0';
+    $noRC    = isset($_POST['kts_no_rclick']) ? '1' : '0';
 
         update_post_meta($post_id, '_kts_columns', $columns);
         update_post_meta($post_id, '_kts_gap', $gap);
         update_post_meta($post_id, '_kts_height', $height);
         update_post_meta($post_id, '_kts_lightbox', $lightbox);
+        update_post_meta($post_id, '_kts_layout', $layout);
+        update_post_meta($post_id, '_kts_auto_columns', $autoCols);
+        update_post_meta($post_id, '_kts_min_width', $minWidth);
+        update_post_meta($post_id, '_kts_lazy', $lazy);
+        update_post_meta($post_id, '_kts_image_size', $imgSize);
+        update_post_meta($post_id, '_kts_crop', $crop);
+        update_post_meta($post_id, '_kts_row_height', $rowH);
+        update_post_meta($post_id, '_kts_margins', $margins);
+    update_post_meta($post_id, '_kts_img_w', $imgW);
+    update_post_meta($post_id, '_kts_img_h', $imgH);
+    // extras
+    update_post_meta($post_id, '_kts_align', $align);
+    update_post_meta($post_id, '_kts_width_pc', $widthPc);
+    update_post_meta($post_id, '_kts_padding', $padding);
+    update_post_meta($post_id, '_kts_radius', $radius);
+    update_post_meta($post_id, '_kts_border_w', $borderW);
+    update_post_meta($post_id, '_kts_border_c', $borderC);
+    update_post_meta($post_id, '_kts_shadow', $shadow);
+    update_post_meta($post_id, '_kts_no_rclick', $noRC);
+
+        // Ensure public sequential shortcode id exists
+        $public_id = get_post_meta($post_id, '_kts_public_id', true);
+        if (!$public_id) {
+            global $wpdb;
+            $max = (int) $wpdb->get_var("SELECT MAX(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = '_kts_public_id'");
+            $next = $max > 0 ? $max + 1 : 1;
+            update_post_meta($post_id, '_kts_public_id', $next);
+        }
     }
 
     public function enqueue_admin_assets($hook) {
@@ -177,10 +348,40 @@ class KTS_Gallery_Plugin {
             'gap'     => '',
             'height'  => '',
             'lightbox'=> '',
+            'layout'  => '',
+            'auto'    => '',
+            'min'     => '',
+            'size'    => '',
+            'crop'    => '',
+            'row_height' => '',
+            'margins' => '',
             'class'   => '',
         ], $atts, 'kts_gallery');
-
-        $post_id = intval($atts['id']);
+        
+        // Resolve id: accept sequential public id, slug, or numeric post ID
+        $post_id = 0;
+        $raw = $atts['id'];
+        if (is_numeric($raw)) {
+            // Try public id first
+            $query = new WP_Query([
+                'post_type' => 'kts_gallery',
+                'post_status' => 'any',
+                'meta_key' => '_kts_public_id',
+                'meta_value' => (int) $raw,
+                'fields' => 'ids',
+                'posts_per_page' => 1,
+            ]);
+            if (!empty($query->posts)) {
+                $post_id = (int) $query->posts[0];
+            } else {
+                // Fallback to WP post ID
+                $post_id = (int) $raw;
+            }
+        } else {
+            // Assume slug
+            $p = get_page_by_path(sanitize_title($raw), OBJECT, 'kts_gallery');
+            if ($p) $post_id = $p->ID;
+        }
         if (!$post_id) return '';
 
         $ids = get_post_meta($post_id, '_kts_images', true);
@@ -190,26 +391,62 @@ class KTS_Gallery_Plugin {
         $gap     = $atts['gap']     !== '' ? $atts['gap']               : get_post_meta($post_id, '_kts_gap', true);
         $height  = $atts['height']  !== '' ? $atts['height']            : get_post_meta($post_id, '_kts_height', true);
         $lightbox = $atts['lightbox'] !== '' ? $atts['lightbox']        : get_post_meta($post_id, '_kts_lightbox', true);
-        if (!$columns) $columns = 3;
+        $layout   = $atts['layout']   !== '' ? $atts['layout']          : get_post_meta($post_id, '_kts_layout', true);
+        $autoCols = $atts['auto']     !== '' ? $atts['auto']            : get_post_meta($post_id, '_kts_auto_columns', true);
+        $minWidth = $atts['min']      !== '' ? $atts['min']             : get_post_meta($post_id, '_kts_min_width', true);
+    $imgSize  = $atts['size']     !== '' ? $atts['size']            : get_post_meta($post_id, '_kts_image_size', true);
+        $crop     = $atts['crop']     !== '' ? $atts['crop']            : get_post_meta($post_id, '_kts_crop', true);
+        $rowH     = $atts['row_height'] !== '' ? $atts['row_height']   : get_post_meta($post_id, '_kts_row_height', true);
+        $margins  = $atts['margins']  !== '' ? $atts['margins']         : get_post_meta($post_id, '_kts_margins', true);
+    $imgW     = (int) get_post_meta($post_id, '_kts_img_w', true);
+    $imgH     = (int) get_post_meta($post_id, '_kts_img_h', true);
+    if (!$columns) $columns = 3;
         if ($gap === '') $gap = '8px';
         if ($height === '') $height = '200px';
+    if ($layout === '') $layout = 'grid';
+        if ($minWidth === '') $minWidth = '220px';
+        if ($rowH === '') $rowH = '220px';
+        if ($margins === '') $margins = '8px';
+
+    // Extras
+    $align   = get_post_meta($post_id, '_kts_align', true);
+    $widthPc = (int) get_post_meta($post_id, '_kts_width_pc', true);
+    $padding = get_post_meta($post_id, '_kts_padding', true);
+    $radius  = get_post_meta($post_id, '_kts_radius', true);
+    $borderW = get_post_meta($post_id, '_kts_border_w', true);
+    $borderC = get_post_meta($post_id, '_kts_border_c', true);
+    $shadow  = get_post_meta($post_id, '_kts_shadow', true);
+    $noRC    = get_post_meta($post_id, '_kts_no_rclick', true);
+    if ($align === '') $align = 'center';
+    if (!$widthPc) $widthPc = 100;
+    if ($padding === '') $padding = '0px';
+    if ($radius === '') $radius = '8px';
+    if ($borderW === '') $borderW = '0px';
+    if ($borderC === '') $borderC = 'transparent';
+    $shadowCss = ($shadow === '1') ? '0 8px 24px rgba(0,0,0,.15)' : 'none';
+    $justify = $align === 'left' ? 'flex-start' : ($align === 'right' ? 'flex-end' : 'center');
 
         wp_enqueue_style('kts-frontend');
         if ($lightbox === '1' || $lightbox === 1 || $lightbox === true) {
             wp_enqueue_script('kts-frontend');
         }
 
-        $classes = 'kts-gallery';
+    $classes = 'kts-gallery';
         if (!empty($atts['class'])) $classes .= ' ' . sanitize_html_class($atts['class']);
+    if ($crop === '0' || $crop === 0) $classes .= ' is-no-crop';
 
         ob_start();
         ?>
-        <div class="<?php echo esc_attr($classes); ?>" data-kts-gallery="<?php echo esc_attr($post_id); ?>"
-            style="--kts-columns: <?php echo esc_attr($columns); ?>; --kts-gap: <?php echo esc_attr($gap); ?>; --kts-height: <?php echo esc_attr($height); ?>;">
+        <div class="<?php echo esc_attr($classes . ' kts-layout-' . esc_attr($layout)); ?>" data-kts-gallery="<?php echo esc_attr($post_id); ?>" data-auto="<?php echo esc_attr($autoCols ? '1' : '0'); ?>" data-no-rclick="<?php echo esc_attr($noRC ? '1' : '0'); ?>"
+            style="--kts-columns: <?php echo esc_attr($columns); ?>; --kts-gap: <?php echo esc_attr($gap); ?>; --kts-height: <?php echo esc_attr($height); ?>; --kts-min: <?php echo esc_attr($minWidth); ?>; --kts-row-height: <?php echo esc_attr($rowH); ?>; --kts-margins: <?php echo esc_attr($margins); ?>; --kts-radius: <?php echo esc_attr($radius); ?>; --kts-border-width: <?php echo esc_attr($borderW); ?>; --kts-border-color: <?php echo esc_attr($borderC); ?>; --kts-shadow: <?php echo esc_attr($shadowCss); ?>; max-width: <?php echo esc_attr($widthPc); ?>%; padding: <?php echo esc_attr($padding); ?>; margin-left: <?php echo $align==='left'?'0':'auto'; ?>; margin-right: <?php echo $align==='right'?'0':'auto'; ?>;">
             <?php foreach ($ids as $i => $aid):
                 $full = wp_get_attachment_image_src($aid, 'full');
                 if (!$full) continue;
-                $img = wp_get_attachment_image($aid, 'large', false, ['loading' => 'lazy']);
+                $image_args = [];
+                $image_args['loading'] = ($lazy === '1' || $lazy === 1) ? 'lazy' : 'eager';
+                if ($imgW) $image_args['width'] = $imgW;
+                if ($imgH) $image_args['height'] = $imgH;
+                $img = wp_get_attachment_image($aid, $imgSize ? $imgSize : 'large', false, $image_args);
                 ?>
                 <a href="<?php echo esc_url($full[0]); ?>" class="kts-item" data-kts-lightbox="gallery-<?php echo esc_attr($post_id); ?>" data-index="<?php echo esc_attr($i); ?>">
                     <?php echo $img; ?>
@@ -241,7 +478,12 @@ class KTS_Gallery_Plugin {
             }
         }
         if ($column === 'kts_shortcode') {
-            echo '<code>[kts_gallery id="' . esc_html($post_id) . '"]</code>';
+            $public = get_post_meta($post_id, '_kts_public_id', true);
+            $slug = get_post_field('post_name', $post_id);
+            if ($public) {
+                echo '<code>[kts_gallery id="' . esc_html($public) . '"]</code><br/>';
+            }
+            echo '<code>[kts_gallery id="' . esc_html($slug) . '"]</code>';
         }
     }
 
@@ -277,6 +519,7 @@ class KTS_Gallery_Plugin {
         $meta = get_post_meta($post_id);
         foreach ($meta as $key => $values) {
             if (is_protected_meta($key, 'post')) continue;
+            if ($key === '_kts_public_id') continue; // regenerate public id
             foreach ($values as $v) {
                 add_post_meta($new_id, $key, maybe_unserialize($v));
             }

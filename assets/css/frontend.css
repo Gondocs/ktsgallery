@@ -4,11 +4,17 @@
   grid-template-columns: repeat(var(--kts-columns, 3), 1fr);
   gap: var(--kts-gap, 8px);
 }
+/* Automatic responsive columns */
+.kts-gallery[data-auto="1"] {
+  grid-template-columns: repeat(auto-fit, minmax(var(--kts-min, 220px), 1fr));
+}
 .kts-gallery .kts-item {
   display: block;
   position: relative;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: var(--kts-radius, 8px);
+  border: var(--kts-border-width, 0) solid var(--kts-border-color, transparent);
+  box-shadow: var(--kts-shadow, none);
 }
 .kts-gallery img {
   width: 100%;
@@ -16,30 +22,60 @@
   object-fit: cover;
   display: block;
 }
+.kts-gallery.is-no-crop img { height: auto; }
+
+/* Layout variations */
+.kts-layout-blogroll {
+  grid-template-columns: 1fr;
+}
+.kts-layout-square .kts-item { aspect-ratio: 1 / 1; }
+.kts-layout-square img { height: 100%; object-fit: cover; }
+
+/* Masonry using CSS columns */
+.kts-layout-mason {
+  column-count: var(--kts-columns, 3);
+  column-gap: var(--kts-gap, 8px);
+}
+.kts-layout-mason .kts-item { display: inline-block; width: 100%; margin: 0 0 var(--kts-gap, 8px); border-radius: 8px; }
+.kts-layout-mason img { width: 100%; height: auto; object-fit: cover; }
+
+/* Automatic (row height) using flex-wrap */
+.kts-layout-automatic { display: flex; flex-wrap: wrap; gap: var(--kts-margins, 8px); }
+.kts-layout-automatic .kts-item { height: var(--kts-row-height, 220px); }
+.kts-layout-automatic img { height: 100%; width: auto; object-fit: cover; }
 
 /* Lightbox */
 .kts-lightbox-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.9);
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   z-index: 999999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
 }
-.kts-lightbox-overlay.is-active { display: flex; }
+.kts-lightbox-overlay.is-active { opacity: 1; pointer-events: auto; }
 .kts-lightbox-inner {
   max-width: 90vw;
   max-height: 90vh;
   position: relative;
+  transform: scale(.98);
+  transition: transform .25s ease;
 }
+.kts-lightbox-overlay.is-active .kts-lightbox-inner { transform: scale(1); }
 .kts-lightbox-inner img {
   max-width: 90vw;
   max-height: 90vh;
   width: auto;
   height: auto;
   display: block;
+  opacity: 0;
+  transition: opacity .25s ease;
 }
+.kts-lightbox-inner img.is-visible { opacity: 1; }
 .kts-lightbox-close, .kts-lightbox-prev, .kts-lightbox-next {
   position: absolute;
   top: 50%;
