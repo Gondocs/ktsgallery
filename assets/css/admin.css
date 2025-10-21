@@ -1,0 +1,35 @@
+
+.kts-wrap .kts-images-list {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+.kts-wrap .kts-image-item {
+  position: relative;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+}
+.kts-wrap .kts-image-item img {
+  display: block;
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+}
+.kts-wrap .kts-remove {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+}
+#kts-select-images { margin-top: 8px; }
