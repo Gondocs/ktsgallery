@@ -12,7 +12,7 @@
 
 if (!defined('ABSPATH')) { exit; }
 
-define('KTS_GALLERY_VERSION', '1.1.0');
+define('KTS_GALLERY_VERSION', '1.1.1');
 define('KTS_GALLERY_SLUG', 'kts-gallery');
 define('KTS_GALLERY_PATH', plugin_dir_path(__FILE__));
 define('KTS_GALLERY_URL', plugin_dir_url(__FILE__));
@@ -158,94 +158,121 @@ class KTS_Gallery_Plugin {
         if (!$public_id) $public_id = __('not assigned yet (will be generated on save)', 'kts-gallery');
 
         ?>
-        <div class="kts-settings-grid">
-            <div class="kts-field">
-                <label for="kts_layout"><?php _e('Layout', 'kts-gallery'); ?></label>
-                <select id="kts_layout" name="kts_layout">
-                    <?php
-                    $opts = [
-                        'automatic' => __('Automatic', 'kts-gallery'),
-                        'mason'     => __('Mason', 'kts-gallery'),
-                        'grid'      => __('Grid', 'kts-gallery'),
-                        'square'    => __('Square', 'kts-gallery'),
-                        'blogroll'  => __('Blogroll', 'kts-gallery'),
-                    ];
-                    foreach ($opts as $val => $label) {
-                        echo '<option value="' . esc_attr($val) . '"' . selected($layout, $val, false) . '>' . esc_html($label) . '</option>';
-                    }
-                    ?>
-                </select>
+        <div class="kts-tabs">
+            <div class="kts-tab-container">
+            <div class="kts-tab-nav">
+                <button type="button" class="kts-tab-btn is-active" data-for="layout"><?php _e('Layout', 'kts-gallery'); ?></button>
+                <button type="button" class="kts-tab-btn" data-for="media"><?php _e('Media', 'kts-gallery'); ?></button>
+                <button type="button" class="kts-tab-btn" data-for="appearance"><?php _e('Appearance', 'kts-gallery'); ?></button>
+                <button type="button" class="kts-tab-btn" data-for="lightbox"><?php _e('Lightbox', 'kts-gallery'); ?></button>
             </div>
 
-            <div class="kts-field">
-                <label for="kts_columns"><?php _e('Columns', 'kts-gallery'); ?></label>
-                <input type="number" min="1" max="12" id="kts_columns" name="kts_columns" value="<?php echo esc_attr($columns); ?>" />
-                <label class="kts-inline"><input type="checkbox" name="kts_auto_columns" value="1" <?php checked($autoCols, '1'); ?>/> <?php _e('Automatic Columns (responsive)', 'kts-gallery'); ?></label>
-                <input type="text" id="kts_min_width" name="kts_min_width" value="<?php echo esc_attr($minWidth); ?>" placeholder="min column width e.g. 220px" />
-            </div>
+            <div class="kts-tab-content">
+            <div class="kts-tab-panel is-active" data-tab="layout">
+                <div class="kts-settings-grid">
+                    <div class="kts-field">
+                        <label for="kts_layout" title="Choose how images are arranged."><?php _e('Layout', 'kts-gallery'); ?></label>
+                        <select id="kts_layout" name="kts_layout">
+                            <?php
+                            $opts = [
+                                'automatic' => __('Automatic', 'kts-gallery'),
+                                'mason'     => __('Mason', 'kts-gallery'),
+                                'grid'      => __('Grid', 'kts-gallery'),
+                                'square'    => __('Square', 'kts-gallery'),
+                                'blogroll'  => __('Blogroll', 'kts-gallery'),
+                            ];
+                            foreach ($opts as $val => $label) {
+                                echo '<option value="' . esc_attr($val) . '"' . selected($layout, $val, false) . '>' . esc_html($label) . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
 
-            <div class="kts-field">
-                <label for="kts_gap"><?php _e('Gap', 'kts-gallery'); ?></label>
-                <input type="text" id="kts_gap" name="kts_gap" value="<?php echo esc_attr($gap); ?>" placeholder="e.g., 8px or 0.5rem" />
-            </div>
+                    <div class="kts-field">
+                        <label for="kts_columns" title="Number of columns for Grid/Square/Blogroll. Automatic layout ignores this."><?php _e('Columns', 'kts-gallery'); ?></label>
+                        <input type="number" min="1" max="12" id="kts_columns" name="kts_columns" value="<?php echo esc_attr($columns); ?>" />
+                        <label class="kts-inline" title="Use CSS auto-fit to keep columns responsive"><input type="checkbox" name="kts_auto_columns" value="1" <?php checked($autoCols, '1'); ?>/> <?php _e('Automatic Columns (responsive)', 'kts-gallery'); ?></label>
+                        <input type="text" id="kts_min_width" name="kts_min_width" value="<?php echo esc_attr($minWidth); ?>" placeholder="min column width e.g. 220px" title="Minimum width of a column before the grid drops to fewer columns" />
+                    </div>
 
-            <div class="kts-field">
-                <label for="kts_height"><?php _e('Image Height', 'kts-gallery'); ?></label>
-                <input type="text" id="kts_height" name="kts_height" value="<?php echo esc_attr($height); ?>" placeholder="e.g., 200px, 20vh" />
-            </div>
+                    <div class="kts-field">
+                        <label for="kts_gap" title="Gap between items."><?php _e('Gap', 'kts-gallery'); ?></label>
+                        <input type="text" id="kts_gap" name="kts_gap" value="<?php echo esc_attr($gap); ?>" placeholder="e.g., 8px or 0.5rem" />
+                    </div>
 
-            <div class="kts-field">
-                <label for="kts_image_size"><?php _e('Image Size', 'kts-gallery'); ?></label>
-                <select id="kts_image_size" name="kts_image_size">
-                    <?php foreach ($sizes as $k => $label) echo '<option value="' . esc_attr($k) . '"' . selected($imgSize, $k, false) . '>' . esc_html($label) . '</option>'; ?>
-                </select>
-                <label class="kts-inline"><input type="checkbox" name="kts_crop" value="1" <?php checked($crop, '1'); ?>/> <?php _e('Crop Images?', 'kts-gallery'); ?></label>
-            </div>
+                    <div class="kts-field">
+                        <label for="kts_height" title="Visible image height for Grid/Square. Turn off Crop to show natural height."><?php _e('Image Height', 'kts-gallery'); ?></label>
+                        <input type="text" id="kts_height" name="kts_height" value="<?php echo esc_attr($height); ?>" placeholder="e.g., 200px, 20vh" />
+                    </div>
 
-            <div class="kts-field">
-                <label><?php _e('Image Dimensions', 'kts-gallery'); ?></label>
-                <div style="display:flex; gap:8px; align-items:center;">
-                    <input type="number" min="0" id="kts_img_w" name="kts_img_w" value="<?php echo esc_attr($imgW); ?>" placeholder="width" />
-                    <span style="opacity:.7;">×</span>
-                    <input type="number" min="0" id="kts_img_h" name="kts_img_h" value="<?php echo esc_attr($imgH); ?>" placeholder="height" />
-                    <span style="opacity:.7;">px</span>
+                    <div class="kts-field">
+                        <label title="Settings specific to Automatic layout."><?php _e('Automatic Layout', 'kts-gallery'); ?></label>
+                        <input type="text" id="kts_row_height" name="kts_row_height" value="<?php echo esc_attr($rowH); ?>" placeholder="Row Height e.g., 220px" title="Target row height (images scale to fit)" />
+                        <input type="text" id="kts_margins" name="kts_margins" value="<?php echo esc_attr($margins); ?>" placeholder="Margins e.g., 8px" title="Spacing between images for Automatic layout" />
+                    </div>
                 </div>
             </div>
 
-            <div class="kts-field">
-                <label><?php _e('Automatic Layout', 'kts-gallery'); ?></label>
-                <input type="text" id="kts_row_height" name="kts_row_height" value="<?php echo esc_attr($rowH); ?>" placeholder="Row Height e.g., 220px" />
-                <input type="text" id="kts_margins" name="kts_margins" value="<?php echo esc_attr($margins); ?>" placeholder="Margins e.g., 8px" />
-            </div>
-
-            <div class="kts-field">
-                <label><input type="checkbox" name="kts_lightbox" value="1" <?php checked($lightbox, '1'); ?>/> <?php _e('Enable Lightbox', 'kts-gallery'); ?></label>
-                <label class="kts-inline"><input type="checkbox" name="kts_lazy" value="1" <?php checked($lazy, '1'); ?>/> <?php _e('Enable Lazy Loading', 'kts-gallery'); ?></label>
-            </div>
-
-            <div class="kts-field">
-                <label><?php _e('Gallery alignment', 'kts-gallery'); ?></label>
-                <select name="kts_align" id="kts_align">
-                    <option value="left" <?php selected($align,'left'); ?>><?php _e('Left','kts-gallery'); ?></option>
-                    <option value="center" <?php selected($align,'center'); ?>><?php _e('Center','kts-gallery'); ?></option>
-                    <option value="right" <?php selected($align,'right'); ?>><?php _e('Right','kts-gallery'); ?></option>
-                </select>
-                <label class="kts-inline" for="kts_width_pc"><?php _e('Gallery width (%)', 'kts-gallery'); ?></label>
-                <input type="number" min="10" max="100" id="kts_width_pc" name="kts_width_pc" value="<?php echo esc_attr($widthPc); ?>" />
-                <label class="kts-inline" for="kts_padding"><?php _e('Gallery padding', 'kts-gallery'); ?></label>
-                <input type="text" id="kts_padding" name="kts_padding" value="<?php echo esc_attr($padding); ?>" placeholder="e.g., 0px or 1rem" />
-            </div>
-
-            <div class="kts-field">
-                <label><?php _e('Image styling', 'kts-gallery'); ?></label>
-                <input type="text" id="kts_radius" name="kts_radius" value="<?php echo esc_attr($radius); ?>" placeholder="Radius e.g., 8px or 5%" />
-                <div style="display:flex; gap:8px; align-items:center;">
-                    <input type="text" id="kts_border_w" name="kts_border_w" value="<?php echo esc_attr($borderW); ?>" placeholder="Border width e.g., 1px" />
-                    <input type="text" id="kts_border_c" name="kts_border_c" value="<?php echo esc_attr($borderC); ?>" placeholder="Border color e.g., #ddd" />
+            <div class="kts-tab-panel" data-tab="media">
+                <div class="kts-settings-grid">
+                    <div class="kts-field">
+                        <label for="kts_image_size" title="Choose a WordPress image size to load."><?php _e('Image Size', 'kts-gallery'); ?></label>
+                        <select id="kts_image_size" name="kts_image_size">
+                            <?php foreach ($sizes as $k => $label) echo '<option value="' . esc_attr($k) . '"' . selected($imgSize, $k, false) . '>' . esc_html($label) . '</option>'; ?>
+                        </select>
+                        <label class="kts-inline" title="Crop images to fit the grid height."><input type="checkbox" name="kts_crop" value="1" <?php checked($crop, '1'); ?>/> <?php _e('Crop Images?', 'kts-gallery'); ?></label>
+                    </div>
+                    <div class="kts-field">
+                        <label title="Optional explicit width × height attributes."><?php _e('Image Dimensions', 'kts-gallery'); ?></label>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <input type="number" min="0" id="kts_img_w" name="kts_img_w" value="<?php echo esc_attr($imgW); ?>" placeholder="width" />
+                            <span style="opacity:.7;">×</span>
+                            <input type="number" min="0" id="kts_img_h" name="kts_img_h" value="<?php echo esc_attr($imgH); ?>" placeholder="height" />
+                            <span style="opacity:.7;">px</span>
+                        </div>
+                    </div>
+                    <div class="kts-field">
+                        <label title="Delay image loading until they are near the viewport."><input type="checkbox" name="kts_lazy" value="1" <?php checked($lazy, '1'); ?>/> <?php _e('Enable Lazy Loading', 'kts-gallery'); ?></label>
+                    </div>
                 </div>
-                <label class="kts-inline"><input type="checkbox" name="kts_shadow" value="1" <?php checked($shadow,'1'); ?>/> <?php _e('Shadow', 'kts-gallery'); ?></label>
-                <label class="kts-inline"><input type="checkbox" name="kts_no_rclick" value="1" <?php checked($noRC,'1'); ?>/> <?php _e('Disable right click', 'kts-gallery'); ?></label>
             </div>
+
+            <div class="kts-tab-panel" data-tab="appearance">
+                <div class="kts-settings-grid">
+                    <div class="kts-field">
+                        <label><?php _e('Gallery alignment', 'kts-gallery'); ?></label>
+                        <select name="kts_align" id="kts_align">
+                            <option value="left" <?php selected($align,'left'); ?>><?php _e('Left','kts-gallery'); ?></option>
+                            <option value="center" <?php selected($align,'center'); ?>><?php _e('Center','kts-gallery'); ?></option>
+                            <option value="right" <?php selected($align,'right'); ?>><?php _e('Right','kts-gallery'); ?></option>
+                        </select>
+                        <label class="kts-inline" for="kts_width_pc" title="Max width of the gallery container."><?php _e('Gallery width (%)', 'kts-gallery'); ?></label>
+                        <input type="number" min="10" max="100" id="kts_width_pc" name="kts_width_pc" value="<?php echo esc_attr($widthPc); ?>" />
+                        <label class="kts-inline" for="kts_padding" title="Padding inside the gallery container."><?php _e('Gallery padding', 'kts-gallery'); ?></label>
+                        <input type="text" id="kts_padding" name="kts_padding" value="<?php echo esc_attr($padding); ?>" placeholder="e.g., 0px or 1rem" />
+                    </div>
+                    <div class="kts-field">
+                        <label title="Corner radius, border and color for each image."><?php _e('Image styling', 'kts-gallery'); ?></label>
+                        <input type="text" id="kts_radius" name="kts_radius" value="<?php echo esc_attr($radius); ?>" placeholder="Radius e.g., 8px or 5%" />
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <input type="text" id="kts_border_w" name="kts_border_w" value="<?php echo esc_attr($borderW); ?>" placeholder="Border width e.g., 1px" />
+                            <input type="text" id="kts_border_c" name="kts_border_c" value="<?php echo esc_attr($borderC); ?>" placeholder="Border color e.g., #ddd" />
+                        </div>
+                        <label class="kts-inline"><input type="checkbox" name="kts_shadow" value="1" <?php checked($shadow,'1'); ?>/> <?php _e('Shadow', 'kts-gallery'); ?></label>
+                        <label class="kts-inline"><input type="checkbox" name="kts_no_rclick" value="1" <?php checked($noRC,'1'); ?>/> <?php _e('Disable right click', 'kts-gallery'); ?></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kts-tab-panel" data-tab="lightbox">
+                <div class="kts-settings-grid">
+                    <div class="kts-field">
+                        <label title="Enable/disable the popup image viewer."><input type="checkbox" name="kts_lightbox" value="1" <?php checked($lightbox, '1'); ?>/> <?php _e('Enable Lightbox', 'kts-gallery'); ?></label>
+                    </div>
+                </div>
+            </div>
+            </div><!-- /.kts-tab-content -->
+            </div><!-- /.kts-tab-container -->
         </div>
 
         <p><strong><?php _e('Shortcodes', 'kts-gallery'); ?>:</strong><br/>

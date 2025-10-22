@@ -2,7 +2,7 @@
 (function(){
   function qsa(sel, root){ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
 
-  var overlay, inner, img, btnPrev, btnNext, btnClose, currentIndex = 0, items = [];
+  var overlay, inner, img, btnPrev, btnNext, btnClose, spinner, currentIndex = 0, items = [];
 
   function createOverlay() {
     overlay = document.createElement('div');
@@ -13,8 +13,12 @@
     inner = document.createElement('div');
     inner.className = 'kts-lightbox-inner';
 
-    img = document.createElement('img');
-    inner.appendChild(img);
+  img = document.createElement('img');
+  inner.appendChild(img);
+
+  spinner = document.createElement('div');
+  spinner.className = 'kts-spinner';
+  inner.appendChild(spinner);
 
     btnPrev = document.createElement('button');
     btnPrev.type = 'button';
@@ -31,10 +35,11 @@
     btnClose.className = 'kts-lightbox-close';
     btnClose.textContent = '✕';
 
-    inner.appendChild(btnPrev);
-    inner.appendChild(btnNext);
-    inner.appendChild(btnClose);
-    overlay.appendChild(inner);
+  // place nav on the overlay for consistent centering
+  overlay.appendChild(btnPrev);
+  overlay.appendChild(btnNext);
+  overlay.appendChild(btnClose);
+  overlay.appendChild(inner);
     document.body.appendChild(overlay);
 
     overlay.addEventListener('click', function(e){
@@ -72,7 +77,8 @@
     if (img._onload) {
       img.removeEventListener('load', img._onload);
     }
-    img._onload = function(){ img.classList.add('is-visible'); };
+    spinner.style.display = 'grid';
+    img._onload = function(){ img.classList.add('is-visible'); spinner.style.display = 'none'; };
     img.addEventListener('load', img._onload, { once: true });
     img.src = src;
   }
