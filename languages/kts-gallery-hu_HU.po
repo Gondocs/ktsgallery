@@ -1,0 +1,309 @@
+# Translation file for KTS Gallery
+# Copyright (C) 2025
+# This file is distributed under the same license as the KTS Gallery package.
+msgid ""
+msgstr ""
+"Project-Id-Version: KTS Gallery 1.1.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-23 12:00+0000\n"
+"PO-Revision-Date: 2025-10-23 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Hungarian\n"
+"Language: hu_HU\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# Post type labels
+msgid "Galleries"
+msgstr "Galériák"
+
+msgid "Gallery"
+msgstr "Galéria"
+
+msgid "Add New"
+msgstr "Új hozzáadása"
+
+msgid "Add New Gallery"
+msgstr "Új galéria hozzáadása"
+
+msgid "Edit Gallery"
+msgstr "Galéria szerkesztése"
+
+msgid "New Gallery"
+msgstr "Új galéria"
+
+msgid "View Gallery"
+msgstr "Galéria megtekintése"
+
+msgid "Search Galleries"
+msgstr "Galériák keresése"
+
+msgid "No galleries found"
+msgstr "Nem találhatók galériák"
+
+msgid "No galleries found in Trash"
+msgstr "Nem találhatók galériák a Kukában"
+
+msgid "All Galleries"
+msgstr "Összes galéria"
+
+msgid "KTS Gallery"
+msgstr "KTS Galéria"
+
+# Metabox titles
+msgid "Gallery Images"
+msgstr "Galéria képek"
+
+msgid "Gallery Settings"
+msgstr "Galéria beállítások"
+
+# Images metabox
+msgid "Add or upload images. Drag to reorder. Click the pencil icon to edit, or ✕ to remove."
+msgstr "Képek hozzáadása vagy feltöltése. Húzd át az átrendezéshez. Kattints a ceruza ikonra a szerkesztéshez, vagy az ✕-re az eltávolításhoz."
+
+msgid "Select / Upload Images"
+msgstr "Képek kiválasztása / Feltöltése"
+
+msgid "Edit"
+msgstr "Szerkesztés"
+
+msgid "Remove"
+msgstr "Eltávolítás"
+
+# Tab labels
+msgid "Layout"
+msgstr "Elrendezés"
+
+msgid "Media"
+msgstr "Média"
+
+msgid "Appearance"
+msgstr "Megjelenés"
+
+msgid "Lightbox"
+msgstr "Lightbox"
+
+# Layout tab
+msgid "Layout Type"
+msgstr "Elrendezés típusa"
+
+msgid "Grid"
+msgstr "Rács"
+
+msgid "Square"
+msgstr "Négyzet"
+
+msgid "Masonry"
+msgstr "Téglafalszerű"
+
+msgid "Blogroll"
+msgstr "Blog lista"
+
+msgid "Automatic (Justified)"
+msgstr "Automatikus (Sorkizárt)"
+
+msgid "Grid: Fixed columns. Square: Equal aspect ratio. Masonry: Pinterest-style. Automatic: Justified rows with natural heights."
+msgstr "Rács: Fix oszlopok. Négyzet: Egyenlő oldalarány. Téglafalszerű: Pinterest-stílus. Automatikus: Sorkizárt sorok természetes magassággal."
+
+msgid "Number of Columns"
+msgstr "Oszlopok száma"
+
+msgid "Number of columns for Grid, Square, and Blogroll layouts."
+msgstr "Az oszlopok száma a Rács, Négyzet és Blog lista elrendezésekhez."
+
+msgid "Responsive Columns"
+msgstr "Reszponzív oszlopok"
+
+msgid "Minimum Column Width"
+msgstr "Minimális oszlopszélesség"
+
+msgid "When responsive columns is enabled, columns automatically adjust based on this minimum width."
+msgstr "Ha a reszponzív oszlopok engedélyezve vannak, az oszlopok automatikusan igazodnak ehhez a minimális szélességhez."
+
+msgid "Gap Between Images"
+msgstr "Képek közötti térköz"
+
+msgid "Spacing between gallery items. Use px, rem, or other CSS units."
+msgstr "A galéria elemek közötti távolság. Használj px, rem vagy más CSS egységeket."
+
+msgid "Image Height"
+msgstr "Kép magassága"
+
+msgid "Fixed height for Grid and Square layouts. Not used in Masonry or Automatic layouts."
+msgstr "Fix magasság a Rács és Négyzet elrendezésekhez. Nem használt a Téglafalszerű vagy Automatikus elrendezéseknél."
+
+msgid "Automatic Layout Settings"
+msgstr "Automatikus elrendezés beállításai"
+
+msgid "Target Row Height"
+msgstr "Cél sormagasság"
+
+msgid "Image Spacing"
+msgstr "Képek távolsága"
+
+msgid "For Automatic layout: Images fill each row maintaining aspect ratio. Row height is approximate."
+msgstr "Automatikus elrendezésnél: A képek kitöltik a sorokat, megtartva az oldalarányt. A sormagasság hozzávetőleges."
+
+# Media tab
+msgid "WordPress Image Size"
+msgstr "WordPress képméret"
+
+msgid "Thumbnail"
+msgstr "Miniatűr"
+
+msgid "Medium"
+msgstr "Közepes"
+
+msgid "Large"
+msgstr "Nagy"
+
+msgid "Original Image"
+msgstr "Eredeti kép"
+
+msgid "Custom Size"
+msgstr "Egyéni méret"
+
+msgid "Choose a predefined WordPress image size or select Custom to specify exact dimensions."
+msgstr "Válassz egy előre definiált WordPress képméretet, vagy válaszd az Egyéni lehetőséget a pontos méretek megadásához."
+
+msgid "Crop Images"
+msgstr "Képek körülvágása"
+
+msgid "Crop images to fit the defined height. Uncheck to show full image with natural aspect ratio."
+msgstr "Képek körülvágása a megadott magassághoz. Kikapcsolva a teljes kép jelenik meg természetes oldalaránnyal."
+
+msgid "Custom Image Dimensions"
+msgstr "Egyéni képméretek"
+
+msgid "Set custom width and height. Leave empty for auto sizing. Used when Custom Size is selected."
+msgstr "Állíts be egyéni szélességet és magasságot. Hagyd üresen az automatikus méretezéshez. Az Egyéni méret kiválasztásakor használatos."
+
+msgid "Enable Lazy Loading"
+msgstr "Lusta betöltés engedélyezése"
+
+msgid "Delay loading images until they are about to enter the viewport. Improves page load performance."
+msgstr "A képek betöltésének késleltetése, amíg nem érik el a látómezőt. Javítja az oldalbetöltés teljesítményét."
+
+# Appearance tab
+msgid "Gallery Alignment"
+msgstr "Galéria igazítása"
+
+msgid "Left"
+msgstr "Balra"
+
+msgid "Center"
+msgstr "Középre"
+
+msgid "Right"
+msgstr "Jobbra"
+
+msgid "Horizontal alignment of the entire gallery container on the page."
+msgstr "A teljes galéria konténer vízszintes igazítása az oldalon."
+
+msgid "Gallery Width (%)"
+msgstr "Galéria szélessége (%)"
+
+msgid "Maximum width of the gallery as a percentage of the container. Use 100% for full width."
+msgstr "A galéria maximális szélessége a konténer százalékában. Használj 100%-ot a teljes szélességhez."
+
+msgid "Gallery Padding"
+msgstr "Galéria belső margó"
+
+msgid "Internal padding around the gallery content. Use CSS units like px, rem, or em."
+msgstr "Belső margó a galéria tartalma körül. Használj CSS egységeket, mint px, rem vagy em."
+
+msgid "Image Styling"
+msgstr "Kép stílusa"
+
+msgid "Corner Radius"
+msgstr "Sarok lekerekítés"
+
+msgid "Rounded corners for images. Use 0 for sharp corners, or values like 8px for rounded edges."
+msgstr "Lekerekített sarkok a képekhez. Használj 0-t az éles sarkokhoz, vagy értékeket, mint 8px a lekerekített élekhez."
+
+msgid "Border"
+msgstr "Szegély"
+
+msgid "Add a border around each image. Specify width and color (use hex, rgb, or CSS color names)."
+msgstr "Adj szegélyt minden képhez. Add meg a szélességet és a színt (használj hex, rgb vagy CSS színneveket)."
+
+msgid "Drop Shadow"
+msgstr "Vetett árnyék"
+
+msgid "Add a subtle shadow effect to images for depth and visual separation."
+msgstr "Finom árnyék effektus hozzáadása a képekhez a mélység és vizuális elkülönítés érdekében."
+
+msgid "Disable Right Click"
+msgstr "Jobb klikk letiltása"
+
+msgid "Prevent users from right-clicking on images to protect against easy downloading."
+msgstr "Megakadályozza a felhasználókat a képekre való jobb kattintásban, hogy védje a könnyű letöltés ellen."
+
+# Lightbox tab
+msgid "Enable Lightbox"
+msgstr "Lightbox engedélyezése"
+
+msgid "Enable the popup image viewer that opens when clicking on gallery images. Allows users to view full-size images with navigation controls."
+msgstr "Engedélyezd a felugró képnézőt, amely megnyílik a galéria képeire kattintva. Lehetővé teszi a felhasználók számára a teljes méretű képek megtekintését navigációs vezérlőkkel."
+
+msgid "Photo Title Display"
+msgstr "Fotó cím megjelenítése"
+
+msgid "Show Title on Hover"
+msgstr "Cím megjelenítése rámutatáskor"
+
+msgid "Display image titles with a smooth animation when hovering over gallery thumbnails."
+msgstr "Képcímek megjelenítése sima animációval a galéria miniatűrjei fölé való rámutatáskor."
+
+msgid "Show Title in Lightbox"
+msgstr "Cím megjelenítése a Lightboxban"
+
+msgid "Display image titles below the photo when viewing in the lightbox popup."
+msgstr "Képcímek megjelenítése a fotó alatt a lightbox felugró ablakban való megtekintéskor."
+
+msgid "You can enable one, both, or neither option. Edit image titles by clicking the pencil icon on thumbnails in the Gallery Images section above."
+msgstr "Engedélyezhetsz egyet, mindkettőt, vagy egyiket sem. Szerkeszd a képcímeket a ceruza ikonra kattintva a miniatűrökön a fenti Galéria képek részben."
+
+# Shortcodes
+msgid "Shortcodes"
+msgstr "Rövidkódok"
+
+msgid "(public number)"
+msgstr "(nyilvános szám)"
+
+msgid "(slug)"
+msgstr "(slug)"
+
+msgid "not assigned yet (will be generated on save)"
+msgstr "még nincs hozzárendelve (mentéskor jön létre)"
+
+# Column labels
+msgid "Preview"
+msgstr "Előnézet"
+
+msgid "Title"
+msgstr "Cím"
+
+msgid "Shortcode"
+msgstr "Rövidkód"
+
+# Actions
+msgid "Duplicate"
+msgstr "Duplikálás"
+
+msgid "(Copy)"
+msgstr "(Másolat)"
+
+msgid "Gallery duplicated. You can now edit the copy."
+msgstr "Galéria duplikálva. Most már szerkesztheted a másolatot."
+
+msgid "You do not have permission to duplicate this item."
+msgstr "Nincs jogosultságod ennek az elemnek a duplikálásához."
+
+msgid "Invalid request."
+msgstr "Érvénytelen kérés."
+
+msgid "Invalid gallery."
+msgstr "Érvénytelen galéria."

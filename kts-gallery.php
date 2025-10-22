@@ -20,6 +20,7 @@ define('KTS_GALLERY_URL', plugin_dir_url(__FILE__));
 class KTS_Gallery_Plugin {
 
     public function __construct() {
+        add_action('plugins_loaded', [$this, 'load_textdomain']);
         add_action('init', [$this, 'register_post_type']);
         add_action('add_meta_boxes', [$this, 'add_meta_boxes']);
         add_action('save_post_kts_gallery', [$this, 'save_gallery_meta']);
@@ -31,6 +32,10 @@ class KTS_Gallery_Plugin {
         add_shortcode('kts_gallery', [$this, 'shortcode_render']);
         add_action('wp_enqueue_scripts', [$this, 'register_frontend_assets']);
         add_action('wp_ajax_kts_update_attachment_title', [$this, 'ajax_update_attachment_title']);
+    }
+
+    public function load_textdomain() {
+        load_plugin_textdomain('kts-gallery', false, dirname(plugin_basename(__FILE__)) . '/languages/');
     }
 
     public function register_post_type() {
@@ -264,26 +269,35 @@ class KTS_Gallery_Plugin {
             <div class="kts-tab-panel" data-tab="appearance">
                 <div class="kts-settings-grid">
                     <div class="kts-field">
-                        <label><?php _e('Gallery alignment', 'kts-gallery'); ?></label>
+                        <label><?php _e('Gallery Alignment', 'kts-gallery'); ?></label>
                         <select name="kts_align" id="kts_align">
                             <option value="left" <?php selected($align,'left'); ?>><?php _e('Left','kts-gallery'); ?></option>
                             <option value="center" <?php selected($align,'center'); ?>><?php _e('Center','kts-gallery'); ?></option>
                             <option value="right" <?php selected($align,'right'); ?>><?php _e('Right','kts-gallery'); ?></option>
                         </select>
-                        <label class="kts-inline" for="kts_width_pc" title="Max width of the gallery container."><?php _e('Gallery width (%)', 'kts-gallery'); ?></label>
+                        <p class="kts-help"><?php _e('Horizontal alignment of the entire gallery container on the page.', 'kts-gallery'); ?></p>
+                        <label for="kts_width_pc" style="font-size: 13px; margin-top: 8px;"><?php _e('Gallery Width (%)', 'kts-gallery'); ?></label>
                         <input type="number" min="10" max="100" id="kts_width_pc" name="kts_width_pc" value="<?php echo esc_attr($widthPc); ?>" />
-                        <label class="kts-inline" for="kts_padding" title="Padding inside the gallery container."><?php _e('Gallery padding', 'kts-gallery'); ?></label>
+                        <p class="kts-help"><?php _e('Maximum width of the gallery as a percentage of the container. Use 100% for full width.', 'kts-gallery'); ?></p>
+                        <label for="kts_padding" style="font-size: 13px; margin-top: 8px;"><?php _e('Gallery Padding', 'kts-gallery'); ?></label>
                         <input type="text" id="kts_padding" name="kts_padding" value="<?php echo esc_attr($padding); ?>" placeholder="e.g., 0px or 1rem" />
+                        <p class="kts-help"><?php _e('Internal padding around the gallery content. Use CSS units like px, rem, or em.', 'kts-gallery'); ?></p>
                     </div>
                     <div class="kts-field">
-                        <label title="Corner radius, border and color for each image."><?php _e('Image styling', 'kts-gallery'); ?></label>
-                        <input type="text" id="kts_radius" name="kts_radius" value="<?php echo esc_attr($radius); ?>" placeholder="Radius e.g., 8px or 5%" />
+                        <label><?php _e('Image Styling', 'kts-gallery'); ?></label>
+                        <label for="kts_radius" style="font-size: 13px;"><?php _e('Corner Radius', 'kts-gallery'); ?></label>
+                        <input type="text" id="kts_radius" name="kts_radius" value="<?php echo esc_attr($radius); ?>" placeholder="e.g., 8px or 5%" />
+                        <p class="kts-help"><?php _e('Rounded corners for images. Use 0 for sharp corners, or values like 8px for rounded edges.', 'kts-gallery'); ?></p>
+                        <label style="font-size: 13px; margin-top: 8px;"><?php _e('Border', 'kts-gallery'); ?></label>
                         <div style="display:flex; gap:8px; align-items:center;">
-                            <input type="text" id="kts_border_w" name="kts_border_w" value="<?php echo esc_attr($borderW); ?>" placeholder="Border width e.g., 1px" />
-                            <input type="text" id="kts_border_c" name="kts_border_c" value="<?php echo esc_attr($borderC); ?>" placeholder="Border color e.g., #ddd" />
+                            <input type="text" id="kts_border_w" name="kts_border_w" value="<?php echo esc_attr($borderW); ?>" placeholder="Width e.g., 1px" style="flex:1;" />
+                            <input type="text" id="kts_border_c" name="kts_border_c" value="<?php echo esc_attr($borderC); ?>" placeholder="Color e.g., #ddd" style="flex:1;" />
                         </div>
-                        <label class="kts-inline"><input type="checkbox" name="kts_shadow" value="1" <?php checked($shadow,'1'); ?>/> <?php _e('Shadow', 'kts-gallery'); ?></label>
-                        <label class="kts-inline"><input type="checkbox" name="kts_no_rclick" value="1" <?php checked($noRC,'1'); ?>/> <?php _e('Disable right click', 'kts-gallery'); ?></label>
+                        <p class="kts-help"><?php _e('Add a border around each image. Specify width and color (use hex, rgb, or CSS color names).', 'kts-gallery'); ?></p>
+                        <label class="kts-inline"><input type="checkbox" name="kts_shadow" value="1" <?php checked($shadow,'1'); ?>/> <?php _e('Drop Shadow', 'kts-gallery'); ?></label>
+                        <p class="kts-help"><?php _e('Add a subtle shadow effect to images for depth and visual separation.', 'kts-gallery'); ?></p>
+                        <label class="kts-inline"><input type="checkbox" name="kts_no_rclick" value="1" <?php checked($noRC,'1'); ?>/> <?php _e('Disable Right Click', 'kts-gallery'); ?></label>
+                        <p class="kts-help"><?php _e('Prevent users from right-clicking on images to protect against easy downloading.', 'kts-gallery'); ?></p>
                     </div>
                 </div>
             </div>
@@ -291,13 +305,16 @@ class KTS_Gallery_Plugin {
             <div class="kts-tab-panel" data-tab="lightbox">
                 <div class="kts-settings-grid">
                     <div class="kts-field">
-                        <label title="Enable/disable the popup image viewer."><input type="checkbox" name="kts_lightbox" value="1" <?php checked($lightbox, '1'); ?>/> <?php _e('Enable Lightbox', 'kts-gallery'); ?></label>
+                        <label><input type="checkbox" name="kts_lightbox" value="1" <?php checked($lightbox, '1'); ?>/> <?php _e('Enable Lightbox', 'kts-gallery'); ?></label>
+                        <p class="kts-help"><?php _e('Enable the popup image viewer that opens when clicking on gallery images. Allows users to view full-size images with navigation controls.', 'kts-gallery'); ?></p>
                     </div>
                     <div class="kts-field">
                         <label style="font-weight: 600; margin-bottom: 8px;"><?php _e('Photo Title Display', 'kts-gallery'); ?></label>
-                        <label class="kts-inline" title="Show photo title when hovering over images in the gallery"><input type="checkbox" name="kts_show_hover_title" value="1" <?php checked($showHoverTitle, '1'); ?>/> <?php _e('Show Title on Hover', 'kts-gallery'); ?></label>
-                        <label class="kts-inline" title="Show photo title in the lightbox popup"><input type="checkbox" name="kts_show_lightbox_title" value="1" <?php checked($showLightboxTitle, '1'); ?>/> <?php _e('Show Title in Lightbox', 'kts-gallery'); ?></label>
-                        <p class="kts-help"><?php _e('You can enable one, both, or neither option depending on your preference.', 'kts-gallery'); ?></p>
+                        <label class="kts-inline"><input type="checkbox" name="kts_show_hover_title" value="1" <?php checked($showHoverTitle, '1'); ?>/> <?php _e('Show Title on Hover', 'kts-gallery'); ?></label>
+                        <p class="kts-help"><?php _e('Display image titles with a smooth animation when hovering over gallery thumbnails.', 'kts-gallery'); ?></p>
+                        <label class="kts-inline"><input type="checkbox" name="kts_show_lightbox_title" value="1" <?php checked($showLightboxTitle, '1'); ?>/> <?php _e('Show Title in Lightbox', 'kts-gallery'); ?></label>
+                        <p class="kts-help"><?php _e('Display image titles below the photo when viewing in the lightbox popup.', 'kts-gallery'); ?></p>
+                        <p class="kts-help" style="margin-top: 8px; font-style: italic;"><?php _e('You can enable one, both, or neither option. Edit image titles by clicking the pencil icon on thumbnails in the Gallery Images section above.', 'kts-gallery'); ?></p>
                     </div>
                 </div>
             </div>
