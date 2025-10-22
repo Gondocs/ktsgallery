@@ -26,8 +26,10 @@ jQuery(function($){
         var id = attachment.id;
         var thumb = attachment.sizes && (attachment.sizes.thumbnail || attachment.sizes.medium || attachment.sizes.full);
         var url = thumb ? thumb.url : attachment.url;
-        var $li = $('<li class="kts-image-item" data-id="'+id+'">' +
+        var title = attachment.title || '';
+        var $li = $('<li class="kts-image-item" data-id="'+id+'" data-title="'+title+'">' +
                       '<img src="'+url+'" alt="" />' +
+                      '<span class="kts-edit" title="Edit">✎</span>' +
                       '<span class="kts-remove" title="Remove">✕</span>' +
                     '</li>');
         $('#kts-images-list').append($li);
@@ -42,6 +44,60 @@ jQuery(function($){
       $(this).closest('.kts-image-item').remove();
       refreshInput();
     }
+  });
+
+  // Edit image modal
+  $('#kts-images-list').on('click', '.kts-edit', function(e){
+    e.preventDefault();
+    var $item = $(this).closest('.kts-image-item');
+    var attachmentId = $item.data('id');
+    var currentTitle = $item.data('title') || '';
+    
+    // Create modal
+    var modal = $('<div class="kts-modal-overlay"><div class="kts-modal">' +
+      '<div class="kts-modal-header">' +
+        '<h2>Edit Image</h2>' +
+        '<button class="kts-modal-close">✕</button>' +
+      '</div>' +
+      '<div class="kts-modal-body">' +
+        '<div class="kts-modal-preview"><img src="' + $item.find('img').attr('src') + '" /></div>' +
+        '<div class="kts-modal-field">' +
+          '<label for="kts-edit-title">Image Title</label>' +
+          '<input type="text" id="kts-edit-title" value="' + currentTitle + '" placeholder="Enter image title" />' +
+          '<p class="kts-help">This title will be displayed when "Show Title" options are enabled.</p>' +
+        '</div>' +
+      '</div>' +
+      '<div class="kts-modal-footer">' +
+        '<button class="button button-secondary kts-modal-cancel">Cancel</button>' +
+        '<button class="button button-primary kts-modal-save">Save Changes</button>' +
+      '</div>' +
+    '</div></div>');
+    
+    $('body').append(modal);
+    modal.fadeIn(200);
+    
+    // Close modal
+    modal.on('click', '.kts-modal-close, .kts-modal-cancel, .kts-modal-overlay', function(e){
+      if(e.target === this) {
+        modal.fadeOut(200, function(){ modal.remove(); });
+      }
+    });
+    
+    // Save changes
+    modal.on('click', '.kts-modal-save', function(){
+      var newTitle = $('#kts-edit-title').val();
+      $item.attr('data-title', newTitle);
+      
+      // Update on server via AJAX
+      $.post(ktsAdmin.ajaxurl, {
+        action: 'kts_update_attachment_title',
+        attachment_id: attachmentId,
+        title: newTitle,
+        nonce: ktsAdmin.nonce
+      });
+      
+      modal.fadeOut(200, function(){ modal.remove(); });
+    });
   });
 
   $('#kts-images-list').sortable({
@@ -112,4 +168,16 @@ jQuery(function($){
     $tabs.find('.kts-tab-panel[data-tab="'+target+'"]').addClass('is-active').show();
   });
   $(document).on('change', '#kts_layout', refreshVisibility);
+  
+  // Show/hide custom dimensions based on image size selection
+  function toggleCustomDimensions() {
+    var selectedSize = $('#kts_image_size').val();
+    if (selectedSize === 'custom') {
+      $('#kts-custom-dimensions').removeClass('kts-hide').show();
+    } else {
+      $('#kts-custom-dimensions').addClass('kts-hide').hide();
+    }
+  }
+  toggleCustomDimensions();
+  $(document).on('change', '#kts_image_size', toggleCustomDimensions);
 });

@@ -95,16 +95,13 @@
     img.addEventListener('load', img._onload, { once: true });
     img.src = src;
     
-    // Update title - Debug logging
-    console.log('setImage - showTitle:', showTitle, 'title:', title);
+    // Update title
     if (showTitle && title) {
       titleEl.textContent = title;
       titleEl.classList.add('is-visible');
-      console.log('Title should be visible now:', titleEl);
     } else {
       titleEl.textContent = '';
       titleEl.classList.remove('is-visible');
-      console.log('Title hidden');
     }
   }
 
@@ -114,7 +111,6 @@
         gallery.addEventListener('contextmenu', function(e){ e.preventDefault(); });
       }
       var showLightboxTitle = gallery.getAttribute('data-show-lightbox-title') === '1';
-      console.log('Gallery lightbox title setting:', showLightboxTitle);
       var group = qsa('a.kts-item', gallery);
       group.forEach(function(a, i){
         a.addEventListener('click', function(e){
@@ -129,7 +125,6 @@
                 title: item.getAttribute('data-title') || ''
               };
             });
-            console.log('Opening lightbox with items:', fresh);
             var startIndex = Array.prototype.indexOf.call(qsa('a.kts-item', gallery), a);
             open(startIndex, fresh, showLightboxTitle);
           }
