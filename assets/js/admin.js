@@ -38,8 +38,10 @@ jQuery(function($){
   });
 
   $('#kts-images-list').on('click', '.kts-remove', function(){
-    $(this).closest('.kts-image-item').remove();
-    refreshInput();
+    if (confirm('Are you sure you want to remove this image from the gallery?')) {
+      $(this).closest('.kts-image-item').remove();
+      refreshInput();
+    }
   });
 
   $('#kts-images-list').sortable({

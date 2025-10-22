@@ -121,6 +121,10 @@ class KTS_Gallery_Plugin {
         $crop     = get_post_meta($post->ID, '_kts_crop', true);
         $rowH     = get_post_meta($post->ID, '_kts_row_height', true);
         $margins  = get_post_meta($post->ID, '_kts_margins', true);
+        
+        // Title display options
+        $showHoverTitle = get_post_meta($post->ID, '_kts_show_hover_title', true);
+        $showLightboxTitle = get_post_meta($post->ID, '_kts_show_lightbox_title', true);
 
     if (!$columns) $columns = 3;
         if ($gap === '') $gap = '8px';
@@ -133,6 +137,8 @@ class KTS_Gallery_Plugin {
         $autoCols = $autoCols === '' ? '0' : $autoCols;
         $lazy     = $lazy === '' ? '1' : $lazy;
         $crop     = $crop === '' ? '0' : $crop;
+        $showHoverTitle = $showHoverTitle === '' ? '0' : $showHoverTitle;
+        $showLightboxTitle = $showLightboxTitle === '' ? '0' : $showLightboxTitle;
 
     // Appearance / extra options (subset of requested)
     $align   = get_post_meta($post->ID, '_kts_align', true); if ($align === '') $align = 'center';
@@ -269,6 +275,12 @@ class KTS_Gallery_Plugin {
                     <div class="kts-field">
                         <label title="Enable/disable the popup image viewer."><input type="checkbox" name="kts_lightbox" value="1" <?php checked($lightbox, '1'); ?>/> <?php _e('Enable Lightbox', 'kts-gallery'); ?></label>
                     </div>
+                    <div class="kts-field">
+                        <label style="font-weight: 600; margin-bottom: 8px;"><?php _e('Photo Title Display', 'kts-gallery'); ?></label>
+                        <label class="kts-inline" title="Show photo title when hovering over images in the gallery"><input type="checkbox" name="kts_show_hover_title" value="1" <?php checked($showHoverTitle, '1'); ?>/> <?php _e('Show Title on Hover', 'kts-gallery'); ?></label>
+                        <label class="kts-inline" title="Show photo title in the lightbox popup"><input type="checkbox" name="kts_show_lightbox_title" value="1" <?php checked($showLightboxTitle, '1'); ?>/> <?php _e('Show Title in Lightbox', 'kts-gallery'); ?></label>
+                        <p class="kts-help"><?php _e('You can enable one, both, or neither option depending on your preference.', 'kts-gallery'); ?></p>
+                    </div>
                 </div>
             </div>
             </div><!-- /.kts-tab-content -->
@@ -318,6 +330,9 @@ class KTS_Gallery_Plugin {
     $borderC = isset($_POST['kts_border_c']) ? sanitize_text_field($_POST['kts_border_c']) : 'transparent';
     $shadow  = isset($_POST['kts_shadow']) ? '1' : '0';
     $noRC    = isset($_POST['kts_no_rclick']) ? '1' : '0';
+    // title display options
+    $showHoverTitle = isset($_POST['kts_show_hover_title']) ? '1' : '0';
+    $showLightboxTitle = isset($_POST['kts_show_lightbox_title']) ? '1' : '0';
 
         update_post_meta($post_id, '_kts_columns', $columns);
         update_post_meta($post_id, '_kts_gap', $gap);
@@ -342,6 +357,8 @@ class KTS_Gallery_Plugin {
     update_post_meta($post_id, '_kts_border_c', $borderC);
     update_post_meta($post_id, '_kts_shadow', $shadow);
     update_post_meta($post_id, '_kts_no_rclick', $noRC);
+    update_post_meta($post_id, '_kts_show_hover_title', $showHoverTitle);
+    update_post_meta($post_id, '_kts_show_lightbox_title', $showLightboxTitle);
 
         // Ensure public sequential shortcode id exists
         $public_id = get_post_meta($post_id, '_kts_public_id', true);
@@ -444,6 +461,8 @@ class KTS_Gallery_Plugin {
     $borderC = get_post_meta($post_id, '_kts_border_c', true);
     $shadow  = get_post_meta($post_id, '_kts_shadow', true);
     $noRC    = get_post_meta($post_id, '_kts_no_rclick', true);
+    $showHoverTitle = get_post_meta($post_id, '_kts_show_hover_title', true);
+    $showLightboxTitle = get_post_meta($post_id, '_kts_show_lightbox_title', true);
     if ($align === '') $align = 'center';
     if (!$widthPc) $widthPc = 100;
     if ($padding === '') $padding = '0px';
@@ -464,19 +483,24 @@ class KTS_Gallery_Plugin {
 
         ob_start();
         ?>
-        <div class="<?php echo esc_attr($classes . ' kts-layout-' . esc_attr($layout)); ?>" data-kts-gallery="<?php echo esc_attr($post_id); ?>" data-auto="<?php echo esc_attr($autoCols ? '1' : '0'); ?>" data-no-rclick="<?php echo esc_attr($noRC ? '1' : '0'); ?>"
+        <div class="<?php echo esc_attr($classes . ' kts-layout-' . esc_attr($layout)); ?>" data-kts-gallery="<?php echo esc_attr($post_id); ?>" data-auto="<?php echo esc_attr($autoCols ? '1' : '0'); ?>" data-no-rclick="<?php echo esc_attr($noRC ? '1' : '0'); ?>" data-show-hover-title="<?php echo esc_attr($showHoverTitle); ?>" data-show-lightbox-title="<?php echo esc_attr($showLightboxTitle); ?>"
             style="--kts-columns: <?php echo esc_attr($columns); ?>; --kts-gap: <?php echo esc_attr($gap); ?>; --kts-height: <?php echo esc_attr($height); ?>; --kts-min: <?php echo esc_attr($minWidth); ?>; --kts-row-height: <?php echo esc_attr($rowH); ?>; --kts-margins: <?php echo esc_attr($margins); ?>; --kts-radius: <?php echo esc_attr($radius); ?>; --kts-border-width: <?php echo esc_attr($borderW); ?>; --kts-border-color: <?php echo esc_attr($borderC); ?>; --kts-shadow: <?php echo esc_attr($shadowCss); ?>; max-width: <?php echo esc_attr($widthPc); ?>%; padding: <?php echo esc_attr($padding); ?>; margin-left: <?php echo $align==='left'?'0':'auto'; ?>; margin-right: <?php echo $align==='right'?'0':'auto'; ?>;">
             <?php foreach ($ids as $i => $aid):
                 $full = wp_get_attachment_image_src($aid, 'full');
                 if (!$full) continue;
+                $attachment = get_post($aid);
+                $title = $attachment ? $attachment->post_title : '';
                 $image_args = [];
                 $image_args['loading'] = ($lazy === '1' || $lazy === 1) ? 'lazy' : 'eager';
                 if ($imgW) $image_args['width'] = $imgW;
                 if ($imgH) $image_args['height'] = $imgH;
                 $img = wp_get_attachment_image($aid, $imgSize ? $imgSize : 'large', false, $image_args);
                 ?>
-                <a href="<?php echo esc_url($full[0]); ?>" class="kts-item" data-kts-lightbox="gallery-<?php echo esc_attr($post_id); ?>" data-index="<?php echo esc_attr($i); ?>">
+                <a href="<?php echo esc_url($full[0]); ?>" class="kts-item" data-kts-lightbox="gallery-<?php echo esc_attr($post_id); ?>" data-index="<?php echo esc_attr($i); ?>" data-title="<?php echo esc_attr($title); ?>">
                     <?php echo $img; ?>
+                    <?php if ($showHoverTitle === '1' && $title): ?>
+                        <span class="kts-item-title"><?php echo esc_html($title); ?></span>
+                    <?php endif; ?>
                 </a>
             <?php endforeach; ?>
         </div>
