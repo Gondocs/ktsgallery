@@ -3,8 +3,8 @@
  * Plugin Name: KTS Gallery
  * Plugin URI: https://example.com/
  * Description: A simple, no-nonsense gallery plugin with lightbox. Create, clone, rename, delete, and embed galleries via shortcode.
- * Version: 1.0.0
- * Author: You
+ * Version: 1.0.3
+ * Author: Robert Gondocs, KTS Online Kft.
  * Author URI: https://example.com/
  * Text Domain: kts-gallery
  * Domain Path: /languages
