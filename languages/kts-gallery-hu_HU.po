@@ -61,7 +61,7 @@ msgstr "Galéria beállítások"
 
 # Images metabox
 msgid "Add or upload images. Drag to reorder. Click the pencil icon to edit, or ✕ to remove."
-msgstr "Képek hozzáadása vagy feltöltése. Húzd át az átrendezéshez. Kattints a ceruza ikonra a szerkesztéshez, vagy az ✕-re az eltávolításhoz."
+msgstr "Képek hozzáadása vagy feltöltése. Húzza a képet az átrendezéshez. Kattintson a ceruza ikonra a szerkesztéshez, vagy az ✕-re az eltávolításhoz."
 
 msgid "Select / Upload Images"
 msgstr "Képek kiválasztása / Feltöltése"
@@ -90,16 +90,16 @@ msgid "Layout Type"
 msgstr "Elrendezés típusa"
 
 msgid "Grid"
-msgstr "Rács"
+msgstr "Rács (Grid)"
 
 msgid "Square"
-msgstr "Négyzet"
+msgstr "Négyzet (Square)"
 
 msgid "Masonry"
-msgstr "Téglafalszerű"
+msgstr "Téglafalszerű (Masonry)"
 
 msgid "Blogroll"
-msgstr "Blog lista"
+msgstr "Blog lista (Blogroll)"
 
 msgid "Automatic (Justified)"
 msgstr "Automatikus (Sorkizárt)"
@@ -126,13 +126,13 @@ msgid "Gap Between Images"
 msgstr "Képek közötti térköz"
 
 msgid "Spacing between gallery items. Use px, rem, or other CSS units."
-msgstr "A galéria elemek közötti távolság. Használj px, rem vagy más CSS egységeket."
+msgstr "A galéria elemek közötti távolság. Használj px, rem vagy akár más CSS egységeket."
 
 msgid "Image Height"
 msgstr "Kép magassága"
 
 msgid "Fixed height for Grid and Square layouts. Not used in Masonry or Automatic layouts."
-msgstr "Fix magasság a Rács és Négyzet elrendezésekhez. Nem használt a Téglafalszerű vagy Automatikus elrendezéseknél."
+msgstr "Fix magasság a Rács és Négyzet elrendezésekhez."
 
 msgid "Automatic Layout Settings"
 msgstr "Automatikus elrendezés beállításai"
@@ -151,22 +151,22 @@ msgid "WordPress Image Size"
 msgstr "WordPress képméret"
 
 msgid "Thumbnail"
-msgstr "Miniatűr"
+msgstr "Miniatűr (Thumbnail)"
 
 msgid "Medium"
-msgstr "Közepes"
+msgstr "Közepes (Medium)"
 
 msgid "Large"
-msgstr "Nagy"
+msgstr "Nagy (Large)"
 
 msgid "Original Image"
-msgstr "Eredeti kép"
+msgstr "Eredeti kép (Original Image)"
 
 msgid "Custom Size"
-msgstr "Egyéni méret"
+msgstr "Egyéni méret (Custom Size)"
 
 msgid "Choose a predefined WordPress image size or select Custom to specify exact dimensions."
-msgstr "Válassz egy előre definiált WordPress képméretet, vagy válaszd az Egyéni lehetőséget a pontos méretek megadásához."
+msgstr "Válassz egy előre definiált WordPress képméretet, vagy Válassza az Egyéni lehetőséget a pontos méretek megadásához."
 
 msgid "Crop Images"
 msgstr "Képek körülvágása"
@@ -181,7 +181,7 @@ msgid "Set custom width and height. Leave empty for auto sizing. Used when Custo
 msgstr "Állíts be egyéni szélességet és magasságot. Hagyd üresen az automatikus méretezéshez. Az Egyéni méret kiválasztásakor használatos."
 
 msgid "Enable Lazy Loading"
-msgstr "Lusta betöltés engedélyezése"
+msgstr "Lazy loading engedélyezése"
 
 msgid "Delay loading images until they are about to enter the viewport. Improves page load performance."
 msgstr "A képek betöltésének késleltetése, amíg nem érik el a látómezőt. Javítja az oldalbetöltés teljesítményét."
@@ -206,28 +206,28 @@ msgid "Gallery Width (%)"
 msgstr "Galéria szélessége (%)"
 
 msgid "Maximum width of the gallery as a percentage of the container. Use 100% for full width."
-msgstr "A galéria maximális szélessége a konténer százalékában. Használj 100%-ot a teljes szélességhez."
+msgstr "A galéria maximális szélessége a konténer százalékában. Használjon 100%-ot a teljes szélességhez."
 
 msgid "Gallery Padding"
 msgstr "Galéria belső margó"
 
 msgid "Internal padding around the gallery content. Use CSS units like px, rem, or em."
-msgstr "Belső margó a galéria tartalma körül. Használj CSS egységeket, mint px, rem vagy em."
+msgstr "Belső margó a galéria tartalma körül. Használjon CSS egységeket, mint px, rem vagy em."
 
 msgid "Image Styling"
 msgstr "Kép stílusa"
 
 msgid "Corner Radius"
-msgstr "Sarok lekerekítés"
+msgstr "Sarkok lekerekítése"
 
 msgid "Rounded corners for images. Use 0 for sharp corners, or values like 8px for rounded edges."
-msgstr "Lekerekített sarkok a képekhez. Használj 0-t az éles sarkokhoz, vagy értékeket, mint 8px a lekerekített élekhez."
+msgstr "Lekerekített sarkok a képekhez. Használjon 0-t az éles sarkokhoz, vagy értékeket, mint 8px a lekerekített élekhez."
 
 msgid "Border"
 msgstr "Szegély"
 
 msgid "Add a border around each image. Specify width and color (use hex, rgb, or CSS color names)."
-msgstr "Adj szegélyt minden képhez. Add meg a szélességet és a színt (használj hex, rgb vagy CSS színneveket)."
+msgstr "Adjon szegélyt minden képhez. Addja meg a szélességet és a színt (használj hex, rgb vagy CSS színneveket)."
 
 msgid "Drop Shadow"
 msgstr "Vetett árnyék"
@@ -246,7 +246,7 @@ msgid "Enable Lightbox"
 msgstr "Lightbox engedélyezése"
 
 msgid "Enable the popup image viewer that opens when clicking on gallery images. Allows users to view full-size images with navigation controls."
-msgstr "Engedélyezd a felugró képnézőt, amely megnyílik a galéria képeire kattintva. Lehetővé teszi a felhasználók számára a teljes méretű képek megtekintését navigációs vezérlőkkel."
+msgstr "Engedélyezze a felugró képnézőt, amely megnyílik a galéria képeire kattintva. Lehetővé teszi a felhasználók számára a teljes méretű képek megtekintését navigációs vezérlőkkel."
 
 msgid "Photo Title Display"
 msgstr "Fotó cím megjelenítése"
