@@ -1,6 +1,6 @@
-:root{
-  --kts-brand:#113a5d;
-  --kts-accent:#e54c3c;
+:root {
+  --kts-brand: #113a5d;
+  --kts-accent: #e54c3c;
   --kts-brand-light: #1a5280;
   --kts-brand-lighter: #e8f0f7;
   --kts-success: #10b981;
@@ -32,7 +32,7 @@
 .kts-wrap .kts-remove {
   position: absolute;
   top: 4px;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.7);
   color: #fff;
   width: 24px;
   height: 24px;
@@ -59,7 +59,9 @@
   background: #c0392b;
   transform: scale(1.1);
 }
-#kts-select-images { margin-top: 8px; }
+#kts-select-images {
+  margin-top: 8px;
+}
 
 /* Settings layout and field sizing */
 .kts-settings-grid {
@@ -79,7 +81,7 @@
 }
 .kts-settings-grid .kts-field:hover {
   border-color: var(--kts-brand-light);
-  box-shadow: 0 2px 8px rgba(17,58,93,0.08);
+  box-shadow: 0 2px 8px rgba(17, 58, 93, 0.08);
 }
 .kts-settings-grid input[type="text"],
 .kts-settings-grid input[type="number"],
@@ -98,10 +100,10 @@
   border-color: var(--kts-brand);
   box-shadow: 0 0 0 3px var(--kts-brand-lighter);
 }
-.kts-settings-grid .kts-inline { 
-  margin-top: 6px; 
-  display: inline-flex; 
-  align-items: center; 
+.kts-settings-grid .kts-inline {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
   font-weight: 500;
   color: var(--kts-text);
@@ -113,42 +115,64 @@
 }
 
 @media (max-width: 1024px) {
-  .kts-settings-grid { grid-template-columns: 1fr; }
+  .kts-settings-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Tabs */
-.kts-tabs{ margin-top:12px; }
-.kts-tabs{ border:1px solid var(--kts-border); border-radius:12px; overflow:hidden; background:#fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-.kts-tabs .kts-tab-container{ display:grid; grid-template-columns:240px 1fr; min-height:120px; }
-.kts-tab-nav{ background: linear-gradient(to bottom, #f8fafc, #f1f5f9); border-right:1px solid var(--kts-border); display:flex; flex-direction:column; padding:12px; gap:8px; }
-.kts-tab-nav .kts-tab-btn{
-  appearance:none; 
-  background:#fff; 
-  border:1px solid var(--kts-border); 
-  padding:12px 16px; 
-  cursor:pointer; 
-  border-radius:8px; 
-  color: var(--kts-text); 
-  text-align:left; 
-  font-weight:600;
+.kts-tabs {
+  margin-top: 12px;
+}
+.kts-tabs {
+  border: 1px solid var(--kts-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+.kts-tabs .kts-tab-container {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 120px;
+}
+.kts-tab-nav {
+  background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+  border-right: 1px solid var(--kts-border);
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 8px;
+}
+.kts-tab-nav .kts-tab-btn {
+  appearance: none;
+  background: #fff;
+  border: 1px solid var(--kts-border);
+  padding: 12px 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  color: var(--kts-text);
+  text-align: left;
+  font-weight: 600;
   font-size: 14px;
   transition: all 0.2s ease;
   position: relative;
 }
-.kts-tab-nav .kts-tab-btn:hover{ 
-  border-color: var(--kts-brand-light); 
+.kts-tab-nav .kts-tab-btn:hover {
+  border-color: var(--kts-brand-light);
   background: var(--kts-brand-lighter);
   transform: translateX(2px);
 }
-.kts-tab-nav .kts-tab-btn.is-active{ 
-  background: var(--kts-brand); 
-  color:#fff; 
-  border-color: var(--kts-brand); 
-  box-shadow: 0 4px 12px rgba(17,58,93,.25), 0 2px 4px rgba(17,58,93,.15);
+.kts-tab-nav .kts-tab-btn.is-active {
+  background: var(--kts-brand);
+  color: #fff;
+  border-color: var(--kts-brand);
+  box-shadow: 0 4px 12px rgba(17, 58, 93, 0.25),
+    0 2px 4px rgba(17, 58, 93, 0.15);
   transform: translateX(4px);
 }
 .kts-tab-nav .kts-tab-btn.is-active::before {
-  content: '';
+  content: "";
   position: absolute;
   left: -12px;
   top: 50%;
@@ -158,27 +182,59 @@
   background: var(--kts-accent);
   border-radius: 0 2px 2px 0;
 }
-.kts-tab-content{ padding:20px; }
-.kts-tab-panel{ display:none !important; }
-.kts-tab-panel.is-active{ display:block !important; }
-.kts-field label{ font-weight:600; color: var(--kts-text); font-size: 14px; }
-.kts-field label[title] { cursor: help; }
-.kts-help{ color: var(--kts-text-light); font-size:12px; line-height: 1.5; margin-top: 4px; }
-.kts-inline{ margin-left:8px; }
-@media (max-width: 900px){ 
-  .kts-tabs .kts-tab-container{ grid-template-columns: 1fr; } 
-  .kts-tab-nav{ flex-direction:row; border-right:none; border-bottom:1px solid var(--kts-border); overflow-x: auto; }
-  .kts-tab-nav .kts-tab-btn.is-active::before { display: none; }
-  .kts-tab-nav .kts-tab-btn:hover,
-  .kts-tab-nav .kts-tab-btn.is-active { transform: none; }
+.kts-tab-content {
+  padding: 20px;
 }
-.kts-hide{ display:none !important; }
+.kts-tab-panel {
+  display: none !important;
+}
+.kts-tab-panel.is-active {
+  display: block !important;
+}
+.kts-field label {
+  font-weight: 600;
+  color: var(--kts-text);
+  font-size: 14px;
+}
+.kts-field label[title] {
+  cursor: help;
+}
+.kts-help {
+  color: var(--kts-text-light);
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+.kts-inline {
+  margin-left: 8px;
+}
+@media (max-width: 900px) {
+  .kts-tabs .kts-tab-container {
+    grid-template-columns: 1fr;
+  }
+  .kts-tab-nav {
+    flex-direction: row;
+    border-right: none;
+    border-bottom: 1px solid var(--kts-border);
+    overflow-x: auto;
+  }
+  .kts-tab-nav .kts-tab-btn.is-active::before {
+    display: none;
+  }
+  .kts-tab-nav .kts-tab-btn:hover,
+  .kts-tab-nav .kts-tab-btn.is-active {
+    transform: none;
+  }
+}
+.kts-hide {
+  display: none !important;
+}
 
 /* Edit Image Modal */
 .kts-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.7);
   z-index: 100000;
   display: none;
   align-items: center;
@@ -188,7 +244,7 @@
 .kts-modal {
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   max-width: 600px;
   width: 100%;
   max-height: 90vh;
@@ -237,7 +293,7 @@
   max-width: 100%;
   max-height: 200px;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 .kts-modal-field {
   margin-bottom: 20px;
