@@ -7,7 +7,10 @@
   display: grid;
   grid-template-columns: repeat(var(--kts-columns, 3), 1fr);
   gap: var(--kts-gap, 8px);
+  width: 100%;
 }
+/* Force override of Grid for Masonry layout */
+.kts-gallery.kts-layout-mason { display: block !important; grid-template-columns: none !important; gap: 0 !important; }
 /* Automatic responsive columns */
 .kts-gallery[data-auto="1"] {
   grid-template-columns: repeat(auto-fit, minmax(var(--kts-min, 220px), 1fr));
@@ -61,12 +64,18 @@
 .kts-layout-square .kts-item { aspect-ratio: 1 / 1; }
 .kts-layout-square img { height: 100%; object-fit: cover; }
 
-/* Masonry using CSS columns */
-.kts-layout-mason {
-  column-count: var(--kts-columns, 3);
-  column-gap: var(--kts-gap, 8px);
+/* Masonry using masonry-layout (Desandro) */
+.kts-layout-mason { position: relative; display: block; width: 100%; }
+/* Percent-based columns accounting for gutter (set via --kts-gap-px from JS) */
+.kts-layout-mason .kts-sizer {
+  width: calc((100% - (var(--kts-columns, 3) - 1) * var(--kts-gap-px, 0px)) / var(--kts-columns, 3));
+  box-sizing: border-box;
 }
-.kts-layout-mason .kts-item { display: inline-block; width: 100%; margin: 0 0 var(--kts-gap, 8px); border-radius: 8px; }
+.kts-layout-mason .kts-item {
+  width: calc((100% - (var(--kts-columns, 3) - 1) * var(--kts-gap-px, 0px)) / var(--kts-columns, 3));
+  margin: 0 0 var(--kts-row-gap, 0);
+  box-sizing: border-box;
+}
 .kts-layout-mason img { width: 100%; height: auto; object-fit: cover; }
 
 /* Automatic (row height) using flex-wrap */

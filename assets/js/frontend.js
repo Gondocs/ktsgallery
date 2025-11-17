@@ -106,6 +106,8 @@
   }
 
   function init() {
+    // Initialize Masonry layout if present
+    initMasonry();
     qsa('.kts-gallery').forEach(function(gallery){
       if (gallery.getAttribute('data-no-rclick') === '1') {
         gallery.addEventListener('contextmenu', function(e){ e.preventDefault(); });
@@ -135,4 +137,73 @@
 
   if (document.readyState !== 'loading') init();
   else document.addEventListener('DOMContentLoaded', init);
+
+  // Masonry initialization (Desandro masonry-layout v4)
+  function initMasonry(){
+    var grids = qsa('.kts-gallery.kts-layout-mason');
+    if (!grids.length) return;
+    if (typeof Masonry === 'undefined') return; // Masonry not loaded, skip
+
+    function toPixels(len){
+      // Convert a CSS length (px, rem, etc.) to pixels
+      if (!len) return 0;
+      var t = document.createElement('div');
+      t.style.position = 'absolute';
+      t.style.visibility = 'hidden';
+      t.style.width = len;
+      document.body.appendChild(t);
+      var px = t.getBoundingClientRect().width;
+      document.body.removeChild(t);
+      return px;
+    }
+
+    function debounce(fn, wait){
+      var tid; return function(){ var ctx=this, args=arguments; clearTimeout(tid); tid=setTimeout(function(){ fn.apply(ctx,args); }, wait); };
+    }
+
+    grids.forEach(function(grid){
+      // Ensure sizer exists as first child
+      var first = grid.firstElementChild;
+      if (!first || !first.classList.contains('kts-sizer')) {
+        var s = document.createElement('div'); s.className = 'kts-sizer';
+        grid.insertBefore(s, grid.firstChild);
+      }
+
+      var auto = grid.getAttribute('data-auto') === '1';
+      var comp = getComputedStyle(grid);
+      var minLen = (comp.getPropertyValue('--kts-min') || '').trim();
+
+      function setColumns(){
+        if (!auto) return;
+        var minPx = toPixels(minLen || '220px') || 220;
+        var gridW = grid.clientWidth;
+        var cols = Math.max(1, Math.floor(gridW / minPx));
+        grid.style.setProperty('--kts-columns', String(cols));
+      }
+
+      setColumns();
+
+      // compute pixel gutter from CSS var --kts-gap (default 8px)
+      var gapLen = (comp.getPropertyValue('--kts-gap') || '8px').trim();
+      var gutterPx = Math.round(toPixels(gapLen) || 8);
+
+      // expose numeric gutter as CSS variable so CSS width calc can subtract it
+      grid.style.setProperty('--kts-gap-px', gutterPx + 'px');
+
+      var msnry = new Masonry(grid, {
+        itemSelector: '.kts-item',
+        columnWidth: '.kts-sizer',
+        percentPosition: true,
+        gutter: gutterPx
+      });
+
+      // Relayout after each image loads
+      if (typeof imagesLoaded !== 'undefined') {
+        imagesLoaded(grid).on('progress', function(){ msnry.layout(); });
+      }
+
+      var onResize = debounce(function(){ setColumns(); msnry.layout(); }, 150);
+      window.addEventListener('resize', onResize);
+    });
+  }
 })();

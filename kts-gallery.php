@@ -118,6 +118,7 @@ class KTS_Gallery_Plugin {
         // Core settings
         $columns  = (int) get_post_meta($post->ID, '_kts_columns', true);
         $gap      = get_post_meta($post->ID, '_kts_gap', true);
+        $rowGap   = get_post_meta($post->ID, '_kts_row_gap', true); // new masonry row gap
         $height   = get_post_meta($post->ID, '_kts_height', true);
         $lightbox = get_post_meta($post->ID, '_kts_lightbox', true);
         $layout   = get_post_meta($post->ID, '_kts_layout', true);
@@ -137,6 +138,7 @@ class KTS_Gallery_Plugin {
 
     if (!$columns) $columns = 3;
         if ($gap === '') $gap = '8px';
+        if ($rowGap === '') $rowGap = $gap; // default row gap to column gap
         if ($height === '') $height = '200px';
         if ($layout === '') $layout = 'grid';
         if ($minWidth === '') $minWidth = '220px';
@@ -215,9 +217,12 @@ class KTS_Gallery_Plugin {
                     </div>
 
                     <div class="kts-field">
-                        <label for="kts_gap"><?php _e('Gap Between Images', 'kts-gallery'); ?></label>
+                        <label for="kts_gap"><?php _e('Column Gap', 'kts-gallery'); ?></label>
                         <input type="text" id="kts_gap" name="kts_gap" value="<?php echo esc_attr($gap); ?>" placeholder="e.g., 8px or 1rem" />
-                        <p class="kts-help"><?php _e('Spacing between gallery items. Use px, rem, or other CSS units.', 'kts-gallery'); ?></p>
+                        <p class="kts-help"><?php _e('Horizontal spacing between columns. Use px, rem, or other CSS units.', 'kts-gallery'); ?></p>
+                        <label for="kts_row_gap" style="margin-top:8px; display:block;"><?php _e('Row Gap (Masonry)', 'kts-gallery'); ?></label>
+                        <input type="text" id="kts_row_gap" name="kts_row_gap" value="<?php echo esc_attr($rowGap); ?>" placeholder="e.g., 8px" />
+                        <p class="kts-help"><?php _e('Vertical spacing between rows for Masonry layout. Leave empty to match column gap.', 'kts-gallery'); ?></p>
                     </div>
 
                     <div class="kts-field">
@@ -344,6 +349,7 @@ class KTS_Gallery_Plugin {
         // Settings
         $columns  = isset($_POST['kts_columns']) ? intval($_POST['kts_columns']) : 3;
         $gap      = isset($_POST['kts_gap']) ? sanitize_text_field($_POST['kts_gap']) : '8px';
+        $rowGap   = isset($_POST['kts_row_gap']) ? sanitize_text_field($_POST['kts_row_gap']) : $gap;
         $height   = isset($_POST['kts_height']) ? sanitize_text_field($_POST['kts_height']) : '200px';
         $lightbox = isset($_POST['kts_lightbox']) ? '1' : '0';
     $layout   = isset($_POST['kts_layout']) ? sanitize_text_field($_POST['kts_layout']) : 'grid';
@@ -371,6 +377,7 @@ class KTS_Gallery_Plugin {
 
         update_post_meta($post_id, '_kts_columns', $columns);
         update_post_meta($post_id, '_kts_gap', $gap);
+        update_post_meta($post_id, '_kts_row_gap', $rowGap);
         update_post_meta($post_id, '_kts_height', $height);
         update_post_meta($post_id, '_kts_lightbox', $lightbox);
         update_post_meta($post_id, '_kts_layout', $layout);
@@ -422,6 +429,9 @@ class KTS_Gallery_Plugin {
     public function register_frontend_assets() {
         wp_register_style('kts-frontend', KTS_GALLERY_URL . 'assets/css/frontend.css', [], KTS_GALLERY_VERSION);
         wp_register_script('kts-frontend', KTS_GALLERY_URL . 'assets/js/frontend.js', [], KTS_GALLERY_VERSION, true);
+        // Register Masonry & imagesLoaded from CDN for Masonry layout usage
+        wp_register_script('kts-masonry-cdn', 'https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js', [], '4.2.2', true);
+        wp_register_script('kts-imagesloaded-cdn', 'https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js', [], '4.1.4', true);
     }
 
     public function shortcode_render($atts) {
@@ -472,6 +482,7 @@ class KTS_Gallery_Plugin {
 
         $columns = $atts['columns'] !== '' ? intval($atts['columns']) : (int) get_post_meta($post_id, '_kts_columns', true);
         $gap     = $atts['gap']     !== '' ? $atts['gap']               : get_post_meta($post_id, '_kts_gap', true);
+        $rowGap  = get_post_meta($post_id, '_kts_row_gap', true);
         $height  = $atts['height']  !== '' ? $atts['height']            : get_post_meta($post_id, '_kts_height', true);
         $lightbox = $atts['lightbox'] !== '' ? $atts['lightbox']        : get_post_meta($post_id, '_kts_lightbox', true);
         $layout   = $atts['layout']   !== '' ? $atts['layout']          : get_post_meta($post_id, '_kts_layout', true);
@@ -485,6 +496,7 @@ class KTS_Gallery_Plugin {
     $imgH     = (int) get_post_meta($post_id, '_kts_img_h', true);
     if (!$columns) $columns = 3;
         if ($gap === '') $gap = '8px';
+        if ($rowGap === '' || $rowGap === null) $rowGap = $gap;
         if ($height === '') $height = '200px';
     if ($layout === '') $layout = 'grid';
         if ($minWidth === '') $minWidth = '220px';
@@ -512,7 +524,16 @@ class KTS_Gallery_Plugin {
     $justify = $align === 'left' ? 'flex-start' : ($align === 'right' ? 'flex-end' : 'center');
 
         wp_enqueue_style('kts-frontend');
-        if ($lightbox === '1' || $lightbox === 1 || $lightbox === true) {
+        // Enqueue JS when lightbox is used OR layout requires runtime (Masonry)
+        if ($lightbox === '1' || $lightbox === 1 || $lightbox === true || $layout === 'mason') {
+            // For Masonry layout ensure dependencies load before initializer by re-registering with deps
+            if ($layout === 'mason') {
+                wp_enqueue_script('kts-imagesloaded-cdn');
+                wp_enqueue_script('kts-masonry-cdn');
+                // Re-register frontend with Masonry deps to guarantee order
+                wp_deregister_script('kts-frontend');
+                wp_register_script('kts-frontend', KTS_GALLERY_URL . 'assets/js/frontend.js', ['kts-imagesloaded-cdn', 'kts-masonry-cdn'], KTS_GALLERY_VERSION, true);
+            }
             wp_enqueue_script('kts-frontend');
         }
 
@@ -523,7 +544,10 @@ class KTS_Gallery_Plugin {
         ob_start();
         ?>
         <div class="<?php echo esc_attr($classes . ' kts-layout-' . esc_attr($layout)); ?>" data-kts-gallery="<?php echo esc_attr($post_id); ?>" data-auto="<?php echo esc_attr($autoCols ? '1' : '0'); ?>" data-no-rclick="<?php echo esc_attr($noRC ? '1' : '0'); ?>" data-show-hover-title="<?php echo esc_attr($showHoverTitle); ?>" data-show-lightbox-title="<?php echo esc_attr($showLightboxTitle); ?>"
-            style="--kts-columns: <?php echo esc_attr($columns); ?>; --kts-gap: <?php echo esc_attr($gap); ?>; --kts-height: <?php echo esc_attr($height); ?>; --kts-min: <?php echo esc_attr($minWidth); ?>; --kts-row-height: <?php echo esc_attr($rowH); ?>; --kts-margins: <?php echo esc_attr($margins); ?>; --kts-radius: <?php echo esc_attr($radius); ?>; --kts-border-width: <?php echo esc_attr($borderW); ?>; --kts-border-color: <?php echo esc_attr($borderC); ?>; --kts-shadow: <?php echo esc_attr($shadowCss); ?>; max-width: <?php echo esc_attr($widthPc); ?>%; padding: <?php echo esc_attr($padding); ?>; margin-left: <?php echo $align==='left'?'0':'auto'; ?>; margin-right: <?php echo $align==='right'?'0':'auto'; ?>;">
+            style="--kts-columns: <?php echo esc_attr($columns); ?>; --kts-gap: <?php echo esc_attr($gap); ?>; --kts-row-gap: <?php echo esc_attr($rowGap); ?>; --kts-height: <?php echo esc_attr($height); ?>; --kts-min: <?php echo esc_attr($minWidth); ?>; --kts-row-height: <?php echo esc_attr($rowH); ?>; --kts-margins: <?php echo esc_attr($margins); ?>; --kts-radius: <?php echo esc_attr($radius); ?>; --kts-border-width: <?php echo esc_attr($borderW); ?>; --kts-border-color: <?php echo esc_attr($borderC); ?>; --kts-shadow: <?php echo esc_attr($shadowCss); ?>; width: <?php echo esc_attr($widthPc); ?>%; padding: <?php echo esc_attr($padding); ?>; margin-left: <?php echo $align==='left'?'0':'auto'; ?>; margin-right: <?php echo $align==='right'?'0':'auto'; ?>;">
+            <?php if ($layout === 'mason'): ?>
+                <div class="kts-sizer"></div>
+            <?php endif; ?>
             <?php foreach ($ids as $i => $aid):
                 $full = wp_get_attachment_image_src($aid, 'full');
                 if (!$full) continue;
