@@ -136,6 +136,7 @@ class KTS_Gallery_Plugin {
         $showHoverTitle = get_post_meta($post->ID, '_kts_show_hover_title', true);
         $showLightboxTitle = get_post_meta($post->ID, '_kts_show_lightbox_title', true);
         $disableHover = get_post_meta($post->ID, '_kts_disable_hover', true);
+        $loadingMode  = get_post_meta($post->ID, '_kts_loading_mode', true);
 
     if (!$columns) $columns = 3;
         if ($gap === '') $gap = '8px';
@@ -152,6 +153,7 @@ class KTS_Gallery_Plugin {
         $showHoverTitle = $showHoverTitle === '' ? '0' : $showHoverTitle;
         $showLightboxTitle = $showLightboxTitle === '' ? '0' : $showLightboxTitle;
         $disableHover = $disableHover === '' ? '0' : $disableHover;
+        if ($loadingMode === '') $loadingMode = 'first';
 
     // Appearance / extra options (subset of requested)
     $align   = get_post_meta($post->ID, '_kts_align', true); if ($align === '') $align = 'center';
@@ -308,6 +310,15 @@ class KTS_Gallery_Plugin {
                         <label class="kts-inline"><input type="checkbox" name="kts_disable_hover" value="1" <?php checked($disableHover,'1'); ?>/> <?php _e('Disable Hover Effect', 'kts-gallery'); ?></label>
                         <p class="kts-help"><?php _e('Turn off the image lift and hover reveal effects.', 'kts-gallery'); ?></p>
                     </div>
+                    <div class="kts-field">
+                        <label for="kts_loading_mode"><?php _e('Loading Indicator', 'kts-gallery'); ?></label>
+                        <select name="kts_loading_mode" id="kts_loading_mode">
+                            <option value="none" <?php selected($loadingMode,'none'); ?>><?php _e('None', 'kts-gallery'); ?></option>
+                            <option value="first" <?php selected($loadingMode,'first'); ?>><?php _e('Until first images', 'kts-gallery'); ?></option>
+                            <option value="all" <?php selected($loadingMode,'all'); ?>><?php _e('Until all images', 'kts-gallery'); ?></option>
+                        </select>
+                        <p class="kts-help"><?php _e('Control when to hide the gallery loading spinner. "First images" hides as soon as images start appearing; "All images" waits until all thumbnails are ready.', 'kts-gallery'); ?></p>
+                    </div>
                 </div>
             </div>
 
@@ -379,6 +390,7 @@ class KTS_Gallery_Plugin {
     $showHoverTitle = isset($_POST['kts_show_hover_title']) ? '1' : '0';
     $showLightboxTitle = isset($_POST['kts_show_lightbox_title']) ? '1' : '0';
     $disableHover = isset($_POST['kts_disable_hover']) ? '1' : '0';
+    $loadingMode  = isset($_POST['kts_loading_mode']) ? sanitize_text_field($_POST['kts_loading_mode']) : 'first';
 
         update_post_meta($post_id, '_kts_columns', $columns);
         update_post_meta($post_id, '_kts_gap', $gap);
@@ -407,6 +419,7 @@ class KTS_Gallery_Plugin {
     update_post_meta($post_id, '_kts_show_hover_title', $showHoverTitle);
     update_post_meta($post_id, '_kts_show_lightbox_title', $showLightboxTitle);
     update_post_meta($post_id, '_kts_disable_hover', $disableHover);
+    update_post_meta($post_id, '_kts_loading_mode', $loadingMode);
 
         // Ensure public sequential shortcode id exists
         $public_id = get_post_meta($post_id, '_kts_public_id', true);
@@ -521,6 +534,8 @@ class KTS_Gallery_Plugin {
     $showHoverTitle = get_post_meta($post_id, '_kts_show_hover_title', true);
     $showLightboxTitle = get_post_meta($post_id, '_kts_show_lightbox_title', true);
     $disableHover = get_post_meta($post_id, '_kts_disable_hover', true);
+    $loadingMode  = get_post_meta($post_id, '_kts_loading_mode', true);
+    if ($loadingMode === '') $loadingMode = 'first';
     if ($align === '') $align = 'center';
     if (!$widthPc) $widthPc = 100;
     if ($padding === '') $padding = '0px';
@@ -531,15 +546,22 @@ class KTS_Gallery_Plugin {
     $justify = $align === 'left' ? 'flex-start' : ($align === 'right' ? 'flex-end' : 'center');
 
         wp_enqueue_style('kts-frontend');
-        // Enqueue JS when lightbox is used OR layout requires runtime (Masonry)
-        if ($lightbox === '1' || $lightbox === 1 || $lightbox === true || $layout === 'mason') {
-            // For Masonry layout ensure dependencies load before initializer by re-registering with deps
-            if ($layout === 'mason') {
+        // Enqueue JS when lightbox is used OR layout requires runtime (Masonry) OR loading indicator not 'none'
+        $need_js = ($lightbox === '1' || $lightbox === 1 || $lightbox === true || $layout === 'mason' || $loadingMode !== 'none');
+        if ($need_js) {
+            $deps = [];
+            // If any loading spinner mode is used, we need imagesLoaded
+            if ($loadingMode !== 'none') {
                 wp_enqueue_script('kts-imagesloaded-cdn');
+                $deps[] = 'kts-imagesloaded-cdn';
+            }
+            if ($layout === 'mason') {
                 wp_enqueue_script('kts-masonry-cdn');
-                // Re-register frontend with Masonry deps to guarantee order
+                $deps[] = 'kts-masonry-cdn';
+            }
+            if (!empty($deps)) {
                 wp_deregister_script('kts-frontend');
-                wp_register_script('kts-frontend', KTS_GALLERY_URL . 'assets/js/frontend.js', ['kts-imagesloaded-cdn', 'kts-masonry-cdn'], KTS_GALLERY_VERSION, true);
+                wp_register_script('kts-frontend', KTS_GALLERY_URL . 'assets/js/frontend.js', $deps, KTS_GALLERY_VERSION, true);
             }
             wp_enqueue_script('kts-frontend');
         }
@@ -551,7 +573,7 @@ class KTS_Gallery_Plugin {
 
         ob_start();
         ?>
-        <div class="<?php echo esc_attr($classes . ' kts-layout-' . esc_attr($layout)); ?>" data-kts-gallery="<?php echo esc_attr($post_id); ?>" data-auto="<?php echo esc_attr($autoCols ? '1' : '0'); ?>" data-no-rclick="<?php echo esc_attr($noRC ? '1' : '0'); ?>" data-show-hover-title="<?php echo esc_attr($showHoverTitle); ?>" data-show-lightbox-title="<?php echo esc_attr($showLightboxTitle); ?>"
+        <div class="<?php echo esc_attr($classes . ' kts-layout-' . esc_attr($layout)); ?>" data-kts-gallery="<?php echo esc_attr($post_id); ?>" data-auto="<?php echo esc_attr($autoCols ? '1' : '0'); ?>" data-no-rclick="<?php echo esc_attr($noRC ? '1' : '0'); ?>" data-show-hover-title="<?php echo esc_attr($showHoverTitle); ?>" data-show-lightbox-title="<?php echo esc_attr($showLightboxTitle); ?>" data-loading="<?php echo esc_attr($loadingMode); ?>"
             style="--kts-columns: <?php echo esc_attr($columns); ?>; --kts-gap: <?php echo esc_attr($gap); ?>; --kts-row-gap: <?php echo esc_attr($rowGap); ?>; --kts-height: <?php echo esc_attr($height); ?>; --kts-min: <?php echo esc_attr($minWidth); ?>; --kts-row-height: <?php echo esc_attr($rowH); ?>; --kts-margins: <?php echo esc_attr($margins); ?>; --kts-radius: <?php echo esc_attr($radius); ?>; --kts-border-width: <?php echo esc_attr($borderW); ?>; --kts-border-color: <?php echo esc_attr($borderC); ?>; --kts-shadow: <?php echo esc_attr($shadowCss); ?>; width: <?php echo esc_attr($widthPc); ?>%; padding: <?php echo esc_attr($padding); ?>; margin-left: <?php echo $align==='left'?'0':'auto'; ?>; margin-right: <?php echo $align==='right'?'0':'auto'; ?>;">
             <?php if ($layout === 'mason'): ?>
                 <div class="kts-sizer"></div>

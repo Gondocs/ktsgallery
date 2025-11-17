@@ -200,23 +200,11 @@
         gutter: gutterPx
       });
 
-      // Relayout after each image loads and hide gallery spinner on first progress
+      // Relayout after each image loads
       if (typeof imagesLoaded !== 'undefined') {
-        var firstShown = false;
         imagesLoaded(grid)
-          .on('progress', function(){
-            if (!firstShown) {
-              firstShown = true;
-              grid.classList.remove('is-loading');
-              var l = grid.querySelector('.kts-gallery-loading'); if (l) l.remove();
-            }
-            msnry.layout();
-          })
-          .on('always', function(){
-            grid.classList.remove('is-loading');
-            var l = grid.querySelector('.kts-gallery-loading'); if (l) l.remove();
-            msnry.layout();
-          });
+          .on('progress', function(){ msnry.layout(); })
+          .on('always', function(){ msnry.layout(); });
       }
 
       var onResize = debounce(function(){ setColumns(); msnry.layout(); }, 150);
@@ -224,38 +212,59 @@
     });
   }
 
-  // Add a loading overlay to a gallery and hide it once initial images are ready
+  // Add a loading overlay to a gallery and hide it depending on selected mode
   function setupGalleryLoading(gallery){
     if (gallery._ktsLoadingInit) return; // guard
     gallery._ktsLoadingInit = true;
+    var mode = gallery.getAttribute('data-loading') || 'first';
+    if (mode === 'none') return;
     var overlay = document.createElement('div');
     overlay.className = 'kts-gallery-loading';
     gallery.classList.add('is-loading');
     gallery.appendChild(overlay);
 
-    // For non-masonry layouts, hide loader once first row images are loaded
     var isMason = gallery.classList.contains('kts-layout-mason');
-    if (isMason) return; // Masonry path handled in initMasonry via imagesLoaded
-
-    var imgs = qsa('img', gallery);
-    if (!imgs.length) { gallery.classList.remove('is-loading'); overlay.remove(); return; }
-
-    // Heuristic: wait for first 2 images or 1 second timeout, whichever comes first
-    var needed = Math.min(2, imgs.length);
-    var count = 0, done = false;
-    function mark(){
-      if (done) return; count++; if (count >= needed) { hide(); }
+    if (typeof imagesLoaded !== 'undefined') {
+      var il = imagesLoaded(gallery);
+      if (mode === 'first') {
+        var hid = false;
+        il.on('progress', function(){ if (!hid) { hid = true; hide(); } });
+        il.on('always', function(){ hide(); });
+      } else if (mode === 'all') {
+        il.on('always', function(){ hide(); });
+      }
+    } else if (!isMason) {
+      // Fallback only for non-masonry when imagesLoaded is unavailable
+      var imgs = qsa('img', gallery);
+      if (!imgs.length) { hide(); return; }
+      if (mode === 'first') {
+        var needed = 1, count = 0;
+        imgs.forEach(function(im){
+          if (im.complete && im.naturalWidth > 0) { count++; }
+          else {
+            im.addEventListener('load', function(){ count++; if (count >= needed) hide(); }, { once: true });
+            im.addEventListener('error', function(){ count++; if (count >= needed) hide(); }, { once: true });
+          }
+        });
+        if (count >= needed) hide();
+        setTimeout(hide, 1500);
+      } else {
+        var remain = imgs.length;
+        imgs.forEach(function(im){
+          if (im.complete && im.naturalWidth > 0) { remain--; }
+          else {
+            im.addEventListener('load', function(){ remain--; if (remain <= 0) hide(); }, { once: true });
+            im.addEventListener('error', function(){ remain--; if (remain <= 0) hide(); }, { once: true });
+          }
+        });
+        if (remain <= 0) hide();
+        setTimeout(hide, 4000);
+      }
     }
+
     function hide(){
-      if (done) return; done = true;
       gallery.classList.remove('is-loading');
       overlay.remove();
     }
-    var timer = setTimeout(hide, 1200);
-    imgs.slice(0, Math.min(6, imgs.length)).forEach(function(im){
-      if (im.complete && im.naturalWidth > 0) { mark(); return; }
-      im.addEventListener('load', mark, { once: true });
-      im.addEventListener('error', mark, { once: true });
-    });
   }
 })();
