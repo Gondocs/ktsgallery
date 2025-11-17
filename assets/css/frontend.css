@@ -9,6 +9,7 @@
   gap: var(--kts-gap, 8px);
   width: 100%;
   position: relative;
+  overflow: hidden;
 }
 /* Force override of Grid for Masonry layout */
 .kts-gallery.kts-layout-mason { display: block !important; grid-template-columns: none !important; gap: 0 !important; }
@@ -70,6 +71,8 @@
   display: grid;
   place-items: center;
   pointer-events: none;
+  background: #fff; /* mask gallery while loading */
+  z-index: 2;
 }
 .kts-gallery .kts-gallery-loading::after {
   content: '';
@@ -81,6 +84,9 @@
   animation: kts-spin 900ms linear infinite;
 }
 .kts-gallery:not(.is-loading) .kts-gallery-loading { display: none; }
+
+/* Hide content underneath to prevent flicker while spinner is visible */
+.kts-gallery.is-loading .kts-item { opacity: 0; }
 
 /* Layout variations */
 .kts-layout-blogroll {
@@ -195,7 +201,7 @@
   border-color: rgba(0,0,0,.1);
 }
 .kts-lightbox-overlay .kts-lightbox-prev { left: 24px; background:#fff; color:#111; }
-.kts-lightbox-overlay .kts-lightbox-next { right: 24px; background:#111; color:#fff; }
+.kts-lightbox-overlay .kts-lightbox-next { right: 24px; background:#fff; color:#111; }
 .kts-lightbox-prev, .kts-lightbox-next {
   width: 48px;
   height: 48px;
