@@ -108,6 +108,8 @@
   function init() {
     // Initialize Masonry layout if present
     initMasonry();
+    // Add loading overlays to all galleries and hide when first images are ready
+    qsa('.kts-gallery').forEach(setupGalleryLoading);
     qsa('.kts-gallery').forEach(function(gallery){
       if (gallery.getAttribute('data-no-rclick') === '1') {
         gallery.addEventListener('contextmenu', function(e){ e.preventDefault(); });
@@ -198,13 +200,62 @@
         gutter: gutterPx
       });
 
-      // Relayout after each image loads
+      // Relayout after each image loads and hide gallery spinner on first progress
       if (typeof imagesLoaded !== 'undefined') {
-        imagesLoaded(grid).on('progress', function(){ msnry.layout(); });
+        var firstShown = false;
+        imagesLoaded(grid)
+          .on('progress', function(){
+            if (!firstShown) {
+              firstShown = true;
+              grid.classList.remove('is-loading');
+              var l = grid.querySelector('.kts-gallery-loading'); if (l) l.remove();
+            }
+            msnry.layout();
+          })
+          .on('always', function(){
+            grid.classList.remove('is-loading');
+            var l = grid.querySelector('.kts-gallery-loading'); if (l) l.remove();
+            msnry.layout();
+          });
       }
 
       var onResize = debounce(function(){ setColumns(); msnry.layout(); }, 150);
       window.addEventListener('resize', onResize);
+    });
+  }
+
+  // Add a loading overlay to a gallery and hide it once initial images are ready
+  function setupGalleryLoading(gallery){
+    if (gallery._ktsLoadingInit) return; // guard
+    gallery._ktsLoadingInit = true;
+    var overlay = document.createElement('div');
+    overlay.className = 'kts-gallery-loading';
+    gallery.classList.add('is-loading');
+    gallery.appendChild(overlay);
+
+    // For non-masonry layouts, hide loader once first row images are loaded
+    var isMason = gallery.classList.contains('kts-layout-mason');
+    if (isMason) return; // Masonry path handled in initMasonry via imagesLoaded
+
+    var imgs = qsa('img', gallery);
+    if (!imgs.length) { gallery.classList.remove('is-loading'); overlay.remove(); return; }
+
+    // Heuristic: wait for first 2 images or 1 second timeout, whichever comes first
+    var needed = Math.min(2, imgs.length);
+    var count = 0, done = false;
+    function mark(){
+      if (done) return; count++; if (count >= needed) { hide(); }
+    }
+    function hide(){
+      if (done) return; done = true;
+      gallery.classList.remove('is-loading');
+      overlay.remove();
+    }
+    var timer = setTimeout(hide, 1200);
+    imgs.slice(0, Math.min(6, imgs.length)).forEach(function(im){
+      if (im.complete && im.naturalWidth > 0) { mark(); return; }
+      im.addEventListener('load', mark, { once: true });
+      im.addEventListener('error', mark, { once: true });
     });
   }
 })();

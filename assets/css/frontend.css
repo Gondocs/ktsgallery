@@ -8,6 +8,7 @@
   grid-template-columns: repeat(var(--kts-columns, 3), 1fr);
   gap: var(--kts-gap, 8px);
   width: 100%;
+  position: relative;
 }
 /* Force override of Grid for Masonry layout */
 .kts-gallery.kts-layout-mason { display: block !important; grid-template-columns: none !important; gap: 0 !important; }
@@ -56,6 +57,30 @@
   display: block;
 }
 .kts-gallery.is-no-crop img { height: auto; }
+
+/* Disable hover effect option */
+.kts-gallery.is-no-hover .kts-item:hover { transform: none; }
+.kts-gallery.is-no-hover .kts-item:hover .kts-item-title { opacity: 0 !important; transform: none; visibility: hidden; }
+
+/* Gallery loading overlay (black & white spinner) */
+.kts-gallery.is-loading { min-height: 120px; }
+.kts-gallery .kts-gallery-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.kts-gallery .kts-gallery-loading::after {
+  content: '';
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(0,0,0,.2);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: kts-spin 900ms linear infinite;
+}
+.kts-gallery:not(.is-loading) .kts-gallery-loading { display: none; }
 
 /* Layout variations */
 .kts-layout-blogroll {

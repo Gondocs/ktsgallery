@@ -135,6 +135,7 @@ class KTS_Gallery_Plugin {
         // Title display options
         $showHoverTitle = get_post_meta($post->ID, '_kts_show_hover_title', true);
         $showLightboxTitle = get_post_meta($post->ID, '_kts_show_lightbox_title', true);
+        $disableHover = get_post_meta($post->ID, '_kts_disable_hover', true);
 
     if (!$columns) $columns = 3;
         if ($gap === '') $gap = '8px';
@@ -150,6 +151,7 @@ class KTS_Gallery_Plugin {
         $crop     = $crop === '' ? '0' : $crop;
         $showHoverTitle = $showHoverTitle === '' ? '0' : $showHoverTitle;
         $showLightboxTitle = $showLightboxTitle === '' ? '0' : $showLightboxTitle;
+        $disableHover = $disableHover === '' ? '0' : $disableHover;
 
     // Appearance / extra options (subset of requested)
     $align   = get_post_meta($post->ID, '_kts_align', true); if ($align === '') $align = 'center';
@@ -303,6 +305,8 @@ class KTS_Gallery_Plugin {
                         <p class="kts-help"><?php _e('Add a subtle shadow effect to images for depth and visual separation.', 'kts-gallery'); ?></p>
                         <label class="kts-inline"><input type="checkbox" name="kts_no_rclick" value="1" <?php checked($noRC,'1'); ?>/> <?php _e('Disable Right Click', 'kts-gallery'); ?></label>
                         <p class="kts-help"><?php _e('Prevent users from right-clicking on images to protect against easy downloading.', 'kts-gallery'); ?></p>
+                        <label class="kts-inline"><input type="checkbox" name="kts_disable_hover" value="1" <?php checked($disableHover,'1'); ?>/> <?php _e('Disable Hover Effect', 'kts-gallery'); ?></label>
+                        <p class="kts-help"><?php _e('Turn off the image lift and hover reveal effects.', 'kts-gallery'); ?></p>
                     </div>
                 </div>
             </div>
@@ -374,6 +378,7 @@ class KTS_Gallery_Plugin {
     // title display options
     $showHoverTitle = isset($_POST['kts_show_hover_title']) ? '1' : '0';
     $showLightboxTitle = isset($_POST['kts_show_lightbox_title']) ? '1' : '0';
+    $disableHover = isset($_POST['kts_disable_hover']) ? '1' : '0';
 
         update_post_meta($post_id, '_kts_columns', $columns);
         update_post_meta($post_id, '_kts_gap', $gap);
@@ -401,6 +406,7 @@ class KTS_Gallery_Plugin {
     update_post_meta($post_id, '_kts_no_rclick', $noRC);
     update_post_meta($post_id, '_kts_show_hover_title', $showHoverTitle);
     update_post_meta($post_id, '_kts_show_lightbox_title', $showLightboxTitle);
+    update_post_meta($post_id, '_kts_disable_hover', $disableHover);
 
         // Ensure public sequential shortcode id exists
         $public_id = get_post_meta($post_id, '_kts_public_id', true);
@@ -514,6 +520,7 @@ class KTS_Gallery_Plugin {
     $noRC    = get_post_meta($post_id, '_kts_no_rclick', true);
     $showHoverTitle = get_post_meta($post_id, '_kts_show_hover_title', true);
     $showLightboxTitle = get_post_meta($post_id, '_kts_show_lightbox_title', true);
+    $disableHover = get_post_meta($post_id, '_kts_disable_hover', true);
     if ($align === '') $align = 'center';
     if (!$widthPc) $widthPc = 100;
     if ($padding === '') $padding = '0px';
@@ -540,6 +547,7 @@ class KTS_Gallery_Plugin {
     $classes = 'kts-gallery';
         if (!empty($atts['class'])) $classes .= ' ' . sanitize_html_class($atts['class']);
     if ($crop === '0' || $crop === 0) $classes .= ' is-no-crop';
+    if ($disableHover === '1') $classes .= ' is-no-hover';
 
         ob_start();
         ?>
