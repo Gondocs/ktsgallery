@@ -183,9 +183,10 @@
 
       setColumns();
 
-      // compute pixel gutter from CSS var --kts-gap (default 8px)
+      // compute pixel gutter from CSS var --kts-gap (default 8px), preserving 0
       var gapLen = (comp.getPropertyValue('--kts-gap') || '8px').trim();
-      var gutterPx = Math.round(toPixels(gapLen) || 8);
+      var pxTmp = toPixels(gapLen);
+      var gutterPx = Math.round(Number.isFinite(pxTmp) ? pxTmp : 8);
 
       // expose numeric gutter as CSS variable so CSS width calc can subtract it
       grid.style.setProperty('--kts-gap-px', gutterPx + 'px');
